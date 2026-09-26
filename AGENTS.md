@@ -1,6 +1,6 @@
 # Anweisungsdatei für Antigravity AI Agent (Fusion Objects / 3D-Modelle)
 
-Diese Datei enthält verbindliche Richtlinien, Architekturvorgaben und Best Practices für alle automatisierten Änderungen und Code-Generierungen in diesem Repository (`fusion-objects`).
+Diese Datei enthält verbindliche Richtlinien, Architekturvorgaben und Best Practices für alle automatisierten Änderungen und Code-Generierungen in diesem Repository (`pi-case`).
 
 ---
 
@@ -12,7 +12,7 @@ Diese Datei enthält verbindliche Richtlinien, Architekturvorgaben und Best Prac
 - **Erhalte Struktur & Kommentare:** Bestehende Dokumentationen, Kommentare, JSDocs und Code-Strukturen müssen bewahrt und bei Bedarf angepasst werden.
 
 ### 1.2 Wartbarer & Sauberer Code (Clean Code)
-- **Modulare Funktionsaufteilung (Streng empfohlen):** Lagere jeden Konstruktionsschritt (Grundkörper, Fasen/Verrundungen, Ausklinkungen, Kanäle, Bohrungen) in eine eigene, präzise typisierte Funktion aus (z. B. `createCrossBody`, `filletBackEdges`, `createCableChannel`), anstatt monolithischen Code in `run()` zu schreiben.
+- **Modulare Funktionsaufteilung (Streng empfohlen):** Lagere jeden Konstruktionsschritt (Grundkörper, Fasen/Verrundungen, Ausklinkungen, Kanäle, Bohrungen) in eine eigene, präzise typisierte Funktion aus (z. B. `createBaseSketchAndExtrusions`, `createTongueAndGrooveJoint`, `createLedOpeningAndMount`), anstatt monolithischen Code in `run()` zu schreiben.
 - **Klarheit & Benennung:** Verwende sprechende Variablen- und Funktionsnamen in konsistentem Stil (TypeScript camelCase für Funktionen/Variablen).
 - **Orchestrator-Muster:** Jedes Skript besitzt eine zentrale `run(_context: string): void`-Funktion als Einstiegspunkt, die den Ablauf logisch in nummerierte Einzelschritte gliedert und am Ende den Zielkörper eindeutig benennt (`targetBody.name = '...'`).
 
@@ -26,11 +26,17 @@ Diese Datei enthält verbindliche Richtlinien, Architekturvorgaben und Best Prac
 ## 2. Repository- & Skript-Architektur
 
 ### 2.1 Ordnerstruktur für Fusion 360 Skripte & Modelle
-Jedes parametrische Skript befindet sich in einem eigenen Unterordner unter `fusion/model/<kategorie>/<script-name>/` oder `fusion/scripts/<script-name>/` und enthält standardmäßig:
-- `<script-name>.ts`: Die TypeScript-Implementierung des Bauteil-Generators.
-- `<script-name>.manifest`: Die Fusion 360 Manifest-Datei (JSON) mit Metadaten (`autodeskProduct: "Fusion"`, `type: "script"`, `editEnabled: true`, `supportedOS: "windows|mac"`).
-- `tsconfig.json`: Lokale TypeScript-Konfiguration, die auf das Root-Verzeichnis verweist (`{"extends": "../../../tsconfig.json"}` bzw. relative Pfadtiefe).
-- `ScriptIcon.svg`: Das UI-Icon für den Fusion 360 Skript-Dialog.
+Das Hauptmodell befindet sich unter `fusion/model/pi5/pi5case/` und die zugehörigen Konstruktions-Prompts unter `fusion/model/pi5/prompt/`:
+- `fusion/model/pi5/pi5case/`:
+  - `pi5case.ts`: Die zentrale TypeScript-Implementierung / Orchestrator des Bauteil-Generators.
+  - `pi5case.manifest`: Die Fusion 360 Manifest-Datei (JSON) mit Metadaten (`autodeskProduct: "Fusion"`, `type: "script"`, `editEnabled: true`, `supportedOS: "windows|mac"`).
+  - `tsconfig.json`: Lokale TypeScript-Konfiguration, die auf das Root-Verzeichnis verweist (`{"extends": "../../../tsconfig.json"}`).
+  - `ScriptIcon.svg`: Das UI-Icon für den Fusion 360 Skript-Dialog.
+  - `TypeScriptPermissions.user.json`: Berechtigungsdatei für Fusion 360 TypeScript-Ausführung.
+  - `*.ts`: Modulare Subsysteme und Komponenten (z. B. `chassis.ts`, `openings.ts`, `joint.ts`, `lidJoint.ts`, `standoffs.ts`, `led.ts`, `logo.ts`, `pi5Board.ts`, `stressRelief.ts`, `materials.ts`, `printLayout.ts`).
+  - `RASPBERRY_PI_5_1.STEP` / `.f3d` / `.stl`: Offizielle Raspberry Pi 5 Referenzmodelle.
+- `fusion/model/pi5/prompt/`:
+  - `p001/` bis `p028/`: Strukturierte Aufgaben- und Dokumentationsordner mit `prompt.md` und Referenzbildern je Konstruktionsschritt.
 
 *Regel bei neuen Skripten:* Werden neue Skripte angelegt, müssen Begleitdateien (`.manifest`, `tsconfig.json`, `ScriptIcon.svg`) vollständig und mit konsistentem Namen erstellt werden.
 
@@ -52,44 +58,48 @@ Jedes parametrische Skript befindet sich in einem eigenen Unterordner unter `fus
 ### 2.3 Modulare Architektur & Domänen-Aufteilung (Lokale `.ts`-Dateien)
 
 - **Trennung von Orchestrierung und Konstruktion (Streng verbindlich):**
-  - Die zentrale Skriptdatei (z. B. `case.ts`) fungiert **ausschließlich als Orchestrator**. Sie steuert den Gesamt-Workflow, ruft die einzelnen Konstruktionsschritte chronologisch in `run()` auf, koordiniert BRep-Referenzen über `getLiveBody` und wickelt High-Level Logging / Fehlermeldungen ab.
-  - Umfangreiche Konstruktionslogiken, Geometrieerzeugungen, Feature-Ketten und Baugruppen gehören **niemals monolithisch in `case.ts`**, sondern müssen in modulare, lokale TypeScript-Dateien im selben Ordner (z. B. `fusion/model/marcintosh`) gegliedert sein.
+  - Die zentrale Skriptdatei (`pi5case.ts`) fungiert **ausschließlich als Orchestrator**. Sie steuert den Gesamt-Workflow, ruft die einzelnen Konstruktionsschritte chronologisch in `run()` auf, koordiniert BRep-Referenzen über `getLiveBody` und wickelt High-Level Logging / Fehlermeldungen ab.
+  - Umfangreiche Konstruktionslogiken, Geometrieerzeugungen, Feature-Ketten und Baugruppen gehören **niemals monolithisch in `pi5case.ts`**, sondern müssen in modulare, lokale TypeScript-Dateien im selben Ordner (`fusion/model/pi5/pi5case`) gegliedert sein.
 
 - **Regeln: Wann muss eine neue `.ts`-Datei angelegt werden?**
   1. **Neue, eigenständige Körper & Baugruppen:**
-     Sobald ein neuer physischer Körper oder ein eigenständiges Bauteil hinzukommt (z. B. ein Display, ein Tragegriff, ein Apple-Logo oder ein Rechnergehäuse wie der Mac Mini), **muss** hierfür eine eigene `.ts`-Datei erstellt werden (z. B. `display.ts`, `handle.ts`, `macMini.ts`).
+     Sobald ein neuer physischer Körper oder ein eigenständiges Bauteil hinzukommt (z. B. Platinen-Standoffs, die Status-LED-Hülse, ein Retro-Logo oder das Raspberry Pi 5 Referenz-Board), **muss** hierfür eine eigene `.ts`-Datei erstellt werden (z. B. `standoffs.ts`, `led.ts`, `logo.ts`, `pi5Board.ts`).
   2. **In sich geschlossene mechanische Subsysteme:**
-     Funktionale Baugruppen mit komplexer Wechselwirkung zwischen mehreren Körpern (z. B. Gelenk- und Schwenkmechanismen in `tiltMechanism.ts`, Verbindungselemente und Zuganker in `hardware.ts` oder Grundkörperbildung in `chassis.ts`) gehören in ein eigenes Modul.
+     Funktionale Baugruppen mit komplexer Wechselwirkung zwischen mehreren Körpern (z. B. Stufenfalz & Snap-Fit-Rastungen in `joint.ts` und `lidJoint.ts`, Gehäuseöffnungen & Ausklinkungen in `openings.ts` oder Grundkörperbildung in `chassis.ts`) gehören in ein eigenes Modul.
   3. **Querschnitts- & Nachbearbeitungsfunktionen:**
-     Aufgaben, die mehrere Körper analysieren oder modifizieren (z. B. Spannungsabbau-Verrundungen in `stressRelief.ts` oder Druckbett-Ausrichtungen in `printLayout.ts`), sind in eigenständigen Modulen zu kapseln.
+     Aufgaben, die mehrere Körper analysieren oder modifizieren (z. B. Spannungsabbau-Verrundungen in `stressRelief.ts`, Material- und Farbanpassungen in `materials.ts` oder Druckbett-Ausrichtungen in `printLayout.ts`), sind in eigenständigen Modulen zu kapseln.
   4. **Codeumfang & Single-Responsibility:**
-     Überschreitet eine Konstruktionsfunktion oder ein logischer Schrittblock einen Umfang von ca. 150–200 Zeilen oder umfasst er mehrere spezialisierte Skizzen-, Extrusions- und Gewindeschritte, ist er aus `case.ts` in eine neue oder bestehende Fachdatei auszulagern.
+     Überschreitet eine Konstruktionsfunktion oder ein logischer Schrittblock einen Umfang von ca. 150–200 Zeilen oder umfasst er mehrere spezialisierte Skizzen-, Extrusions- und Gewindeschritte, ist er aus `pi5case.ts` in eine neue oder bestehende Fachdatei auszulagern.
 
-- **Übersicht: Was befindet sich in welchem `.ts`-File? (Modul-Zuständigkeiten am Beispiel `fusion/model/marcintosh`):**
-  - **`case.ts` (Orchestrator):**
-    Zentraler Einstiegspunkt (`run()`). Ruft die Konstruktionsschritte in nummerierter Abfolge (Schritte 1 bis 26+) auf, übergibt Zwischenkörper an Folgefunktionen und fängt Ausführungsfehler zentral ab.
+- **Übersicht: Was befindet sich in welchem `.ts`-File? (Modul-Zuständigkeiten am Beispiel `fusion/model/pi5/pi5case`):**
+  - **`pi5case.ts` (Orchestrator):**
+    Zentraler Einstiegspunkt (`run()`). Ruft die Konstruktionsschritte in nummerierter Abfolge (Schritte 0 bis 26) auf, übergibt Zwischenkörper an Folgefunktionen, koordiniert BRep-Referenzen über `getLiveBody` und wickelt High-Level Logging / Fehlermeldungen ab.
   - **`parameters.ts` (Parameter-Management):**
     Zentrales `setupParameters(design)`. Verwaltet sämtliche parametrischen Maße (`UserParameters`) mit Standardwerten, Einheiten und Beschreibungen im strikten `snake_case`. Exportiert den Typ `Params`.
   - **`utils.ts` (Gemeinsame Hilfswerkzeuge):**
-    Generische API-Helfer wie `createCollection`, robuste Live-Körper-Ermittlung `getLiveBody`, fehlertolerante Ebenenerzeugung `createOffsetPlane`, mehrstufige Kantenverrundung `applyFilletWithFallbacks` und Toleranzkonstanten (`TOL`).
+    Generische API-Helfer wie `createCollection`, robuste Live-Körper-Ermittlung `getLiveBody`, fehlertolerante Ebenenerzeugung `createOffsetPlane`, mehrstufige Kantenverrundung `applyFilletWithFallbacks`, Farbanwendung `applyColorToEntity` und Baugruppenerkennung `detectAssemblyConstruction`.
   - **`chassis.ts` (Gehäuse-Grundstruktur):**
-    Hauptprofilskizze (YZ-Ebene), symmetrische Primärextrusionen, frontseitige Hauptausklinkung (Display-Recess), Schalen-Aushöhlung (CaseBottom, CaseTop, CaseMiddle), horizontale Trennschnitte und Boden-Auffüllung bei $Z = 6.5\,\text{mm}$.
-  - **`tiltMechanism.ts` (Neige- & Schwenkmechanik):**
-    Mechanische Führung im Standfuß: Schwenk-Gleitbahnen, Sperr-Pins (`Pin_01`, `Pin_02`), M4-Verschraubungskanäle, Sechskant-Mutterntaschen, Halteplatten (`Tilt_Plate_01`, `Tilt_Plate_02`) und Spiegelfunktionen.
-  - **`handle.ts` (Tragegriff & Lagerung):**
-    Drehbarer Griffkörper (`Case_Handle`): Bündige Griffbettung in der Wölbung von `Case_01_Top`, koaxiale Drehachsenbohrungen für 3mm-Stifte, Grifffinger-Mulde und Neodym-Magnettaschen.
-  - **`macMini.ts` (Mac Mini M1 Referenz & Einbau):**
-    Referenzkörper `Mac_Mini_M1` mit Standfuß, runde rückseitige Lüftungsöffnung (Ø 174mm), seitliche I/O-Anschlussaussparung, vertikaler Einschubkanal und interne Haltestege.
-  - **`hardware.ts` (Verschraubungen & Verbindungstechnik):**
-    Wiederöffenbare M6-Zuganker-Verbindungen (`tie_rod`), Schraubendome, D-Säulen und die Gehäusefront-Bohrung inkl. D-Ring-Flachsenkung für die 1/4"-Stativschraube (`createScreenMountHole`).
-  - **`aesthetics.ts` (Design & Formensprache):**
-    Gehäuse-Stilelemente im Apple-80er-Jahre-Look ("Snow White" Lüftungsschlitze mit 45°-Fasen an den Flanken) und mehrfarbiges Apple-Logo (`Apple_Logo`) im Standfuß.
+    Basisskizze (XY-Ebene), Primärextrusionen (`Case_Top` und `Case_Bottom`), Schalenaushöhlung mit `shell_thickness`, Verstärkung der rechten Portwand (`thickenRightWall`), Außenkantenverrundung (`filletOuterEdges`), Verrundung der inneren Bodenkanten (`filletCaseBottomInnerFloorEdges`), umlaufende Schattenfuge / Sims (`createGrooveFeature`) und Fugenverrundung (`filletGrooveEdges`).
+  - **`standoffs.ts` (Platinen-Befestigungssäulen):**
+    4 zylindrische Befestigungssäulen (`createPi5Standoffs`) auf dem Gehäuse-Innenboden, exakt abgestimmt auf die Raspberry Pi 5 Bohrungen, mit modellierten metrischen M2.5x0.45 6H Innengewinden (`ThreadFeatures`) und negativem Passungsspiel (`thread_clearance`).
+  - **`openings.ts` (Gehäuseöffnungen & Ausklinkungen):**
+    Sämtliche Port-Ausschnitte: Frontanschlüsse (USB-C, dual Micro-HDMI), Front-Vertiefung (`createFrontPortRecess`), Deckel-Lüftungsschlitze mit 25°-Verjüngung (`createLidVentilationSlots`), rechte Wand (Gigabit-Ethernet RJ45 & dual USB 3.0/2.0 mit harmonischem S-Kurven-Übergang und verrundeten Ecken), innenliegende Aussparung für Geekworm X1001 M.2 NVMe SSD HAT (`createInnerSsdPocket`), linke Seitenwand-Bohrungen sowie integrierte, federnde Druckschalter-Lasche (`createMiddleButtonTab`).
+  - **`joint.ts` (Boden-Verbindungstechnik & Snap-Fit):**
+    Stabile Stufenfalz-Steckverbindung (`createTongueAndGrooveJoint`) zwischen `Case_Bottom` und `Case_Middle` (bzw. `Case_Main`) mit umlaufenden L-Winkel-Eckführungen (Back-Left, Back-Right, Front-Right) und 4-Punkt-Snap-Fit-Rastnasen (2x Rückwand ecknah, 1x linke Wand, 1x Frontwand rechts) inklusive korrespondierender Rastmulden.
+  - **`lidJoint.ts` (Deckeltrennung & Stufenfalz):**
+    Horizontale Trennung von `Case_Top` bei $Z = \text{lid\_split\_z}$ (`splitAndCreateLidJoint`) in `Case_Top` und `Case_Middle` mit 5 mm Steckkragen, $0.5\,\text{mm}$ Mini-Fase und 4-Punkt-Snap-Fit-Rastnasen (entfällt bei `merge_top_and_middle = 1`; erzeugt stattdessen den durchgehenden Monolith-Körper `Case_Main`).
+  - **`led.ts` (Status-LED Öffnung & Halterung):**
+    Rechteckige $5.2 \times 2.2\,\text{mm}$ Gehäuseöffnung (`createLedOpeningAndMount`) in der Schattenfuge der linken Gehäusewand sowie monolithische Führungshülse an der Innenwand von `Case_Top`, die stützfrei zur Deckeldecke emporwächst.
+  - **`logo.ts` (Retro-Logo & Passvertiefung):**
+    Isometrischer 3D-Logo-BRep-Körper `'Logo'` (`createCaseLogo`) mit $0.5\,\text{mm}$ Dicke, Facettenteilung und Graustufen-/Farbzuweisung sowie formschlüssige Passmulde mit $+0.2\,\text{mm}$ Spiel an der linken Gehäuseseitenwand.
+  - **`pi5Board.ts` (Raspberry Pi 5 Referenzmodell):**
+    Import des offiziellen STEP-Modells `RASPBERRY_PI_5_1.STEP` (`importAndAlignPi5Board`) via `import_pi5_board`, automatische $90^\circ$-Rotationskorrektur und millimetergenaue Montageausrichtung bündig auf den 4 Standoffs.
   - **`stressRelief.ts` (Spannungsreduktion für FDM):**
-    Automatisierte Analyse und selektive Verrundung (1.0mm) sowie Anfasung (0.8mm) von 90°-Innenkanten (`enable_stress_relief_fillets`) zur Reduzierung von Kerbspannungen bei PETG/PLA unter striktem Schutz aller Trenn- und Passflächen.
-  - **`display.ts` (Monitor & Front-Integration):**
-    ASUS ZenScreen OLED MQ16FC (`Display_ASUS_ZenScreen_MQ16FC`): Quader mit abgerundeten Ecken, 0.5mm Display-Vertiefung (211 x 341 mm), rückseitigem 1/4"-20 UNC Stativ-Innengewinde und fluchtender Ausrichtung an der Gehäusefront.
+    Automatisierte Analyse und selektive Verrundung ($1.0\,\text{mm}$) von $90^\circ$-Innenkanten (`applyStressReliefTreatments`) zur Reduzierung von Kerbspannungen bei FDM-Druckmaterialien (PLA/PETG) unter striktem Schutz aller Trenn-, Pass- und Dichtflächen.
+  - **`materials.ts` (Materialien & Erscheinungsbilder):**
+    Strukturierte Zuweisung physikalischer Materialien und Render-Erscheinungsbilder (`assignBodyMaterials`): ABS weiß für die Gehäuseschalen (`Case_Main` bzw. `Case_Top`, `Case_Middle`, `Case_Bottom`) und Kunststoff schwarz für den Körper `Logo`.
   - **`printLayout.ts` (FDM-Druckvorbereitung):**
-    Stützfreie 3D-Druckanordnung (`layout_for_print`): Aufreihung aller druckbaren Bauteile auf der XY-Ebene ($Z = 0$) entlang der Y-Achse, optimale Ausrichtung auf flache Montageflächen zur Vermeidung von Stützstrukturen an Sichtflächen und Ausblenden von Referenzkörpern.
+    Stützfreie 3D-Druckanordnung (`layout_for_print`): Aufreihung aller druckbaren Bauteile auf der XY-Ebene ($Z = 0$) entlang der Y-Achse, optimale $180^\circ$-Ausrichtung von `Case_Top` und `Case_Middle` auf flache Montageflächen zur Vermeidung von Stützstrukturen an Sichtflächen und Ausblenden von Referenzkörpern (`Raspberry_Pi_5`).
 
 ---
 
