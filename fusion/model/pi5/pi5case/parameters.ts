@@ -87,13 +87,16 @@ export function setupParameters(design: adsk.fusion.Design) {
     caseDepth: getOrCreateParam('case_depth', '62.4mm', 'mm', 'Tiefe des Gehäuses (Y)'),
 
     // Gehäusehöhe & Höhenanpassung für Case_Middle (p014 / p015: Favorit)
-    caseMiddleHeightOffset: getOrCreateParam(
-      'case_middle_height_offset',
-      '-4mm',
-      'mm',
-      'Höhenabweichung für Gehäusehöhe Case_Middle (in mm, positiv zum Erhöhen, negativ zum Verkleinern)',
-      true
-    ),
+    caseMiddleHeightOffset: (() => {
+      const p = getOrCreateParam(
+        'case_middle_height_offset',
+        '-7mm',
+        'mm',
+        'Höhenabweichung für Gehäusehöhe Case_Middle (in mm, positiv zum Erhöhen, negativ zum Verkleinern)',
+        true
+      );
+      return ensureParamExpression(p, '-7mm', ['-4mm', '-4.0mm', '-4.00mm']);
+    })(),
 
     // Schritt 20 / p025: Zusammenführung von Deckel und Mittelteil zu einem Körper (Case_Main, Favorit)
     mergeTopAndMiddle: getOrCreateParam(
