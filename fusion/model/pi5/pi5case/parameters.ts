@@ -320,7 +320,19 @@ export function setupParameters(design: adsk.fusion.Design) {
       'joint_snap_left_y_offset',
       '5mm',
       'mm',
-      'Y-Position des Zentrums der linken Seitenwand-Rastnase (nach links / +Y verschoben für Power-Button-Freigang, p028)'
+      'Y-Position des Zentrums der hinteren linken Seitenwand-Rastnase (nach links / +Y verschoben für Power-Button-Freigang, p028)'
+    ),
+    jointSnapFrontLeftYOffset: getOrCreateParam(
+      'joint_snap_front_left_y_offset',
+      '-20.5mm',
+      'mm',
+      'Y-Position des Zentrums der zusätzlichen vorderen Rastnase auf der linken Seitenwand (vor dem Power-Button)'
+    ),
+    jointSnapFrontLeftLength: getOrCreateParam(
+      'joint_snap_front_left_length',
+      '11mm',
+      'mm',
+      'Länge der zusätzlichen vorderen Rastnase auf der linken Seitenwand'
     ),
 
     // Schritt 20 / p007 / p014: Horizontale Trennung von Case_Top am unteren Fugenende & Stufenfalz

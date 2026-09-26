@@ -15,9 +15,10 @@ Konstruktion einer integrierten, federnden Druckschalter-Lasche (compliant flexu
      - **Unterer Abschluss:** Am unteren Scheitelpunkt des Tastkopfs schließt der Trennschnitt mit einem äußeren Halbkreis ($R_o = 2.30\,\text{mm}$) ab. Der tiefste Punkt des Schlitzes liegt bei $Z = Z_c - R_o = 1.15\,\text{mm}$ und verbleibt somit vollständig und mit Sicherheitsabstand innerhalb von `Case_Middle` oberhalb der Trennebene $Z = 0$.
    - **Kontur-Trennschnitt:** U-förmige Schnittfuge mit Schnittbreite $w = 0.30\,\text{mm}$ (`middle_button_cut_width = 0.3mm`), optimiert für FDM-3D-Druck (z.B. Bambu Lab P1S/P2S/X1C mit 0.4 mm Düse), um ein Verschmelzen der Wände während des Drucks zu verhindern.
 
-2. **Sicherheitsabstand zur linken Rastnase (Snap-Fit):**
-   - Die linke Rastnase an der Steckverbindung zwischen `Case_Bottom` und `Case_Middle` liegt bei $Y = +5.0\,\text{mm}$ (`joint_snap_left_y_offset = 5mm`).
-   - Da der Schalter nun vertikal ausgerichtet ist und in $Y$-Richtung nur eine Gesamtbreite von $4.6\,\text{mm}$ ($Y \in [-11.9\,\text{mm}, -7.3\,\text{mm}]$) einnimmt, besteht ein sehr großzügiger Sicherheitsabstand von über $12.3\,\text{mm}$ zwischen Tastkopf und linker Rastnase.
+2. **Sicherheitsabstand zu den beiden linken Rastnasen (Snap-Fit):**
+   - Die hintere linke Rastnase an der Steckverbindung zwischen `Case_Bottom` und `Case_Middle` liegt bei $Y = +5.0\,\text{mm}$ (`joint_snap_left_y_offset = 5mm`).
+   - Die zusätzliche vordere linke Rastnase liegt bei $Y = -20.5\,\text{mm}$ (`joint_snap_front_left_y_offset = -20.5mm`) mit $11.0\,\text{mm}$ Länge (`joint_snap_front_left_length = 11mm`).
+   - Da der Schalter nun vertikal ausgerichtet ist und in $Y$-Richtung nur eine Gesamtbreite von $4.6\,\text{mm}$ ($Y \in [-11.9\,\text{mm}, -7.3\,\text{mm}]$) einnimmt, besteht zu beiden Rastnasen ein kollisionsfreier Sicherheitsabstand von mindestens $2.9\,\text{mm}$ (nach vorne) bzw. über $12.3\,\text{mm}$ (nach hinten).
 
 3. **Freistellungs-Ausschnitt mit Verrundungen im Steckkragen von `Case_Bottom`:**
    - Im oberen Steckkragen von `Case_Bottom` ($Z \in [0.0\,\text{mm}, 5.0\,\text{mm}]$) wird hinter dem unteren Betätigungsbereich der Lasche ($Y \in [-12.4\,\text{mm}, -6.8\,\text{mm}]$) eine kompakte, $5.6\,\text{mm}$ breite Aussparung freigeschnitten.
@@ -60,7 +61,9 @@ Konstruktion einer integrierten, federnden Druckschalter-Lasche (compliant flexu
 | `collar_button_cutout_fillet` | $1.2\,\text{mm}$ | Verrundungsradius an den 4 Ecken des Kragenausschnitts in `Case_Bottom` (oben konvex, unten konkav) |
 | `middle_hole_y_offset` | $-9.6\,\text{mm}$ | Y-Position des Tastkopf-Zentrums / Druckpunkts auf der linken Seitenwand (unverändert) |
 | `middle_hole_z_offset` | $3.45\,\text{mm}$ | Z-Höhe des Tastkopf-Zentrums / Druckpunkts (+0.5 mm nach oben verschoben, konstant relativ zu `Case_Bottom`) |
-| `joint_snap_left_y_offset` | $5.0\,\text{mm}$ | Mittenposition der linken Rastnase auf `Case_Bottom` & `Case_Middle` |
+| `joint_snap_left_y_offset` | $5.0\,\text{mm}$ | Mittenposition der hinteren linken Rastnase auf `Case_Bottom` & `Case_Middle` |
+| `joint_snap_front_left_y_offset` | $-20.5\,\text{mm}$ | Mittenposition der zusätzlichen vorderen linken Rastnase vor dem Druckschalter |
+| `joint_snap_front_left_length` | $11.0\,\text{mm}$ | Länge der zusätzlichen vorderen linken Rastnase |
 | Kragenausschnitt `Case_Bottom` | $Y \in [-12.4, -6.8]\,\text{mm}$, $Z \in [0.0, 5.0]\,\text{mm}$, $R = 1.2\,\text{mm}$ | Freistellung im Steckkragen von `Case_Bottom` hinter dem Tastkopf mit verrundeten Ecken |
 | Hilfsebene (`Plane_Middle_Button_Tab`) | $X = -5.5\,\text{cm}$ | Konstruktionsebene außerhalb der Gehäusewand |
 | Hilfsebene (`Plane_Middle_Button_Inner_Recess`) | $Y = -1.175\,\text{cm}$ | Konstruktionsebene parallel zu XZ für den Dickenreduzierungs-Schnitt |
@@ -71,7 +74,9 @@ Konstruktion einer integrierten, federnden Druckschalter-Lasche (compliant flexu
 ## 2. Implementierungsdetails
 
 1. **Parameter (`parameters.ts`):**
-   - `joint_snap_left_y_offset`: `5mm` (Verschiebung der linken Rastnase nach links / $+Y$ für Kollisionsfreiheit).
+   - `joint_snap_left_y_offset`: `5mm` (Verschiebung der hinteren linken Rastnase nach links / $+Y$ für Kollisionsfreiheit).
+   - `joint_snap_front_left_y_offset`: `-20.5mm` (Position der zusätzlichen vorderen linken Rastnase vor dem Taster).
+   - `joint_snap_front_left_length`: `11mm` (Länge der zusätzlichen vorderen linken Rastnase).
    - `middle_button_tab_length`: `9mm` (vertikale Hebelarmlänge nach oben, 1 mm kürzer, gerader Verlauf ohne Schnörkel).
    - `middle_button_tab_width`: `4mm` (Hebelarmbreite in $Y$ & Kopfdurchmesser).
    - `middle_button_cut_width`: `0.3mm` (Schnittbreite / Schlitzspalt).
@@ -83,7 +88,7 @@ Konstruktion einer integrierten, federnden Druckschalter-Lasche (compliant flexu
    - Rückwärtskompatibilität für `middle_hole_diameter`, `middle_hole_y_offset` und `middle_hole_z_offset` bleibt vollständig gewahrt; `middle_hole_z_offset` (bzw. `middle_opening_z_offset`) ist fest auf `3.45mm` definiert (+0.5 mm nach oben verschoben, konstant zu `Case_Bottom`, unabhängig von `case_middle_height_offset`).
 
 2. **Steckverbindung (`joint.ts`, Schritt 19):**
-   - Die linke Rastwulst auf `Case_Bottom` und die Rastmulde in `Case_Middle` nutzen `leftSnapCenterY = params.jointSnapLeftYOffset.value` ($+5.0\,\text{mm}$).
+   - Die beiden linken Rastwülste auf `Case_Bottom` und Rastmulden in `Case_Middle` nutzen `leftSnapCenterY = params.jointSnapLeftYOffset.value` ($+5.0\,\text{mm}$) und `frontLeftSnapCenterY = params.jointSnapFrontLeftYOffset.value` ($-20.5\,\text{mm}$).
 
 3. **Geometrieerzeugung (`openings.ts`, Schritt 21b):**
    - `createMiddleButtonTab` (mit Aliase `createMiddleSideHole` & `createMiddleSideOpening`):

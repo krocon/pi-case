@@ -54,7 +54,7 @@ const ui = app ? app.userInterface : null;
  * Schritt 16: Vertiefung an der Gehäusefront für Anschlüsse (-1.5 mm Schnitt, R3 mm Verrundung)
  * Schritt 17: Lüftungsschlitze im Deckel (6 Schlitze gleichverteilt, 80x2.5 mm, -4 mm Schnitt mit 25° Verjüngung)
  * Schritt 18: 4 Befestigungssäulen auf Gehäuseboden-Innenseite mit M2.5-Innengewinde (Ø 6 mm, H 5 mm, ISO Metric Profile M2.5x0.45 6H)
- * Schritt 19: Stabile Stufenfalz-Steckverbindung (5 mm Kragentiefe & 0.5 mm Mini-Fase analog Case_Middle/Case_Top) mit L-Winkel-Ecken (Back-Left, Back-Right, Front-Right; Front-Left massiv geschlossen zum Schutz der Front-Vertiefung) & 4 Rastnasen (2x Rückwand ecknah, 1x linke Wand, 1x Frontwand rechts) zwischen Case_Bottom und Case_Middle/Case_Main
+ * Schritt 19: Stabile Stufenfalz-Steckverbindung (5 mm Kragentiefe & 0.5 mm Mini-Fase analog Case_Middle/Case_Top) mit L-Winkel-Ecken (Back-Left, Back-Right, Front-Right; Front-Left massiv geschlossen zum Schutz der Front-Vertiefung) & 5 Rastnasen (2x Rückwand ecknah, 2x linke Wand, 1x Frontwand rechts) zwischen Case_Bottom und Case_Middle/Case_Main
  * Schritt 20: Horizontale Trennung von Case_Top am unteren Fugenende (Z = lid_split_z, nominal 29.5 mm + case_middle_height_offset) in Case_Top & Case_Middle mit 5 mm Stufenfalz & 4 Rastnasen (entfällt bei merge_top_and_middle = 1; es entsteht stattdessen der durchgehende monolithische Körper Case_Main, p025)
  * Schritt 21: Rechteckige LED-Öffnung (5.2x2.2 mm) und innenliegende LED-Halterung in Case_Top (entfällt bei merge_top_and_middle = 1, p025)
  * Schritt 21b: Integrierter Druckschalter (gerade Lasche Ø 4mm, L 9mm, ohne Schnörkel) in Case_Middle/Case_Main & Kragenausschnitt in Case_Bottom (p028)

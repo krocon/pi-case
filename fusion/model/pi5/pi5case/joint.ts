@@ -402,13 +402,13 @@ export function createTongueAndGrooveJoint(
   console.log(`createTongueAndGrooveJoint: Stufenschnitt (${(stepDepthCm * 10).toFixed(1)} mm Tiefe, 1.5 mm Breite) erfolgreich in Case_Middle ausgeführt.`);
 
   // =========================================================================
-  // 3. EINRASTFUNKTION (Snap-Fit) an 3 Wänden: 4 Rastnasen insgesamt (p020)
+  // 3. EINRASTFUNKTION (Snap-Fit) an 3 Wänden: 5 Rastnasen insgesamt (p020, p028)
   //    - 2x an der Rückwand (+Y, ecknah bei X = -28 mm und X = +26 mm)
-  //    - 1x an der linken Seitenwand (-X, zentriert bei Y = 0)
+  //    - 2x an der linken Seitenwand (-X, hinten bei Y = +5 mm und vorne bei Y = -20.5 mm)
   //    - 1x an der Frontwand rechts (-Y, zentriert bei X = +22.0 mm)
   // =========================================================================
   try {
-    console.log("createTongueAndGrooveJoint: Erzeuge 4 Rastnasen (2x Rückwand ecknah, 1x Linke Wand, 1x Frontwand)...");
+    console.log("createTongueAndGrooveJoint: Erzeuge 5 Rastnasen (2x Rückwand ecknah, 2x Linke Wand, 1x Frontwand)...");
 
     const snapLengthCm = params.jointSnapLength.value;   // 1.8 cm (18 mm)
     const snapDepthCm = params.jointSnapDepth.value;     // 0.025 cm (0.25 mm)
@@ -563,10 +563,15 @@ export function createTongueAndGrooveJoint(
     }
 
     // -----------------------------------------------------------------------
-    // 3b. Linke Seitenwand (-X, Left Wall, nach links / +Y verschoben für Taster-Freigang) (p020, p028)
+    // 3b. Linke Seitenwand (-X, Left Wall): 2 Rastnasen (hinten bei Y = +5.0 mm und vorne bei Y = -20.5 mm) (p020, p028)
     // -----------------------------------------------------------------------
     try {
-      const leftSnapCenterY = params.jointSnapLeftYOffset ? params.jointSnapLeftYOffset.value : 0.5; // in cm (+5.0 mm nach links / +Y verschoben, p028)
+      const leftSnapCenterY = params.jointSnapLeftYOffset ? params.jointSnapLeftYOffset.value : 0.5; // in cm (+5.0 mm, hinter dem Taster, p028)
+      const frontLeftSnapCenterY = params.jointSnapFrontLeftYOffset ? params.jointSnapFrontLeftYOffset.value : -2.05; // in cm (-20.5 mm, vor dem Taster)
+      const frontLeftSnapLenCm = params.jointSnapFrontLeftLength ? params.jointSnapFrontLeftLength.value : 1.1; // in cm (11.0 mm)
+      const halfFrontLeftSnapLen = frontLeftSnapLenCm / 2.0;
+      const recessFrontLeftHalfLen = halfFrontLeftSnapLen + 0.02;
+
       const collarOuterXLeft = leftMidX + clearanceCm; // -4.405 cm
       const snapPlaneRidgeLeft = createOffsetPlane(
         rootComp,
@@ -580,6 +585,7 @@ export function createTongueAndGrooveJoint(
         const sketchRidgeLeft = sketches.add(snapPlaneRidgeLeft);
         sketchRidgeLeft.name = "Sketch_Snap_Ridge_Left";
 
+        // 1. Hintere Rastwulst auf linker Wand (Y = +5.0 mm)
         drawRectOnYZ(
           sketchRidgeLeft,
           leftSnapCenterY - halfSnapLen,
@@ -589,10 +595,25 @@ export function createTongueAndGrooveJoint(
           collarOuterXLeft
         );
 
+        // 2. Zusätzliche vordere Rastwulst auf linker Wand (Y = -20.5 mm, vor dem Taster)
+        drawRectOnYZ(
+          sketchRidgeLeft,
+          frontLeftSnapCenterY - halfFrontLeftSnapLen,
+          frontLeftSnapCenterY + halfFrontLeftSnapLen,
+          snapZMin,
+          snapZMax,
+          collarOuterXLeft
+        );
+
         if (sketchRidgeLeft.profiles.count > 0) {
-          const ridgeProf = sketchRidgeLeft.profiles.item(0);
+          const ridgeProfiles = adsk.core.ObjectCollection.create();
+          for (let i = 0; i < sketchRidgeLeft.profiles.count; i++) {
+            const prof = sketchRidgeLeft.profiles.item(i);
+            if (prof) ridgeProfiles.add(prof);
+          }
+
           const ridgeInput = extrudes.createInput(
-            ridgeProf,
+            ridgeProfiles,
             adsk.fusion.FeatureOperations.JoinFeatureOperation
           );
           const planeNormX = (snapPlaneRidgeLeft.geometry as adsk.core.Plane).normal.x;
@@ -605,7 +626,9 @@ export function createTongueAndGrooveJoint(
           const ridgeFeat = extrudes.add(ridgeInput);
           if (ridgeFeat) {
             liveBottom = getLiveBody(rootComp, liveBottom, "Case_Bottom");
-            console.log(`createTongueAndGrooveJoint: Linke Seitenwand-Rastwulst (${snapLengthCm * 10}x${snapHeightCm * 10}x${snapDepthCm * 10}mm bei Y = ${(leftSnapCenterY * 10).toFixed(1)}mm) angefügt.`);
+            console.log(
+              `createTongueAndGrooveJoint: 2 linke Seitenwand-Rastwülste (hinten bei Y = ${(leftSnapCenterY * 10).toFixed(1)}mm [L=${(snapLengthCm * 10).toFixed(1)}mm], vorne bei Y = ${(frontLeftSnapCenterY * 10).toFixed(1)}mm [L=${(frontLeftSnapLenCm * 10).toFixed(1)}mm]) angefügt.`
+            );
           }
         }
       }
@@ -623,6 +646,7 @@ export function createTongueAndGrooveJoint(
         const sketchRecessLeft = sketches.add(snapPlaneRecessLeft);
         sketchRecessLeft.name = "Sketch_Snap_Recess_Left";
 
+        // 1. Hintere Rastmulde auf linker Wand (Y = +5.0 mm)
         drawRectOnYZ(
           sketchRecessLeft,
           leftSnapCenterY - recessHalfLen,
@@ -632,10 +656,25 @@ export function createTongueAndGrooveJoint(
           stepOuterXLeft
         );
 
+        // 2. Zusätzliche vordere Rastmulde auf linker Wand (Y = -20.5 mm, vor dem Taster)
+        drawRectOnYZ(
+          sketchRecessLeft,
+          frontLeftSnapCenterY - recessFrontLeftHalfLen,
+          frontLeftSnapCenterY + recessFrontLeftHalfLen,
+          recessZMin,
+          recessZMax,
+          stepOuterXLeft
+        );
+
         if (sketchRecessLeft.profiles.count > 0) {
-          const recessProf = sketchRecessLeft.profiles.item(0);
+          const recessProfiles = adsk.core.ObjectCollection.create();
+          for (let i = 0; i < sketchRecessLeft.profiles.count; i++) {
+            const prof = sketchRecessLeft.profiles.item(i);
+            if (prof) recessProfiles.add(prof);
+          }
+
           const recessInput = extrudes.createInput(
-            recessProf,
+            recessProfiles,
             adsk.fusion.FeatureOperations.CutFeatureOperation
           );
           const planeNormX = (snapPlaneRecessLeft.geometry as adsk.core.Plane).normal.x;
@@ -648,12 +687,14 @@ export function createTongueAndGrooveJoint(
           const recessFeat = extrudes.add(recessInput);
           if (recessFeat) {
             liveTop = getLiveBody(rootComp, liveTop, "Case_Top");
-            console.log(`createTongueAndGrooveJoint: Linke Seitenwand-Rastmulde (${recessHalfLen * 20}x${((recessZMax - recessZMin) * 10).toFixed(1)}x${(recessDepthCm * 10).toFixed(2)}mm bei Y = ${(leftSnapCenterY * 10).toFixed(1)}mm) ausgeschnitten.`);
+            console.log(
+              `createTongueAndGrooveJoint: 2 linke Seitenwand-Rastmulden in Stufenwand von Case_Middle ausgeschnitten.`
+            );
           }
         }
       }
     } catch (errLeft) {
-      console.warn(`createTongueAndGrooveJoint: Linke Seitenwand-Rastnase fehlgeschlagen: ${errLeft}`);
+      console.warn(`createTongueAndGrooveJoint: Linke Seitenwand-Rastnasen fehlgeschlagen: ${errLeft}`);
     }
 
     // -----------------------------------------------------------------------
