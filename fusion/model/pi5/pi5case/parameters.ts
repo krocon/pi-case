@@ -423,18 +423,20 @@ export function setupParameters(design: adsk.fusion.Design) {
       const existing = params.itemByName('middle_hole_z_offset') || params.itemByName('middle_opening_z_offset');
       const p = existing || getOrCreateParam(
         'middle_hole_z_offset',
-        '2.95mm',
+        '3.45mm',
         'mm',
-        'Z-Höhe des Zentrums der Druckschalter-Lasche in Case_Middle (konstant zu Case_Bottom)'
+        'Z-Höhe des Zentrums der Druckschalter-Lasche in Case_Middle (konstant zu Case_Bottom, p028)'
       );
       if (p.expression.includes('case_middle_height_offset')) {
         try {
-          p.expression = '2.95mm';
+          p.expression = '3.45mm';
         } catch (e) {
-          console.warn(`Konnte Expression für '${p.name}' nicht auf '2.95mm' aktualisieren: ${e}`);
+          console.warn(`Konnte Expression für '${p.name}' nicht auf '3.45mm' aktualisieren: ${e}`);
         }
       }
-      return ensureParamExpression(p, '2.95mm', [
+      return ensureParamExpression(p, '3.45mm', [
+        '2.95mm',
+        '2.950mm',
         '6.95mm + case_middle_height_offset',
         '6.95mm+case_middle_height_offset',
         '6.950mm + case_middle_height_offset',
@@ -459,18 +461,20 @@ export function setupParameters(design: adsk.fusion.Design) {
       const existing = params.itemByName('middle_hole_z_offset') || params.itemByName('middle_opening_z_offset');
       const p = existing || getOrCreateParam(
         'middle_hole_z_offset',
-        '2.95mm',
+        '3.45mm',
         'mm',
-        'Z-Höhe des Zentrums der Druckschalter-Lasche in Case_Middle (konstant zu Case_Bottom)'
+        'Z-Höhe des Zentrums der Druckschalter-Lasche in Case_Middle (konstant zu Case_Bottom, p028)'
       );
       if (p.expression.includes('case_middle_height_offset')) {
         try {
-          p.expression = '2.95mm';
+          p.expression = '3.45mm';
         } catch (e) {
-          console.warn(`Konnte Expression für '${p.name}' nicht auf '2.95mm' aktualisieren: ${e}`);
+          console.warn(`Konnte Expression für '${p.name}' nicht auf '3.45mm' aktualisieren: ${e}`);
         }
       }
-      return ensureParamExpression(p, '2.95mm', [
+      return ensureParamExpression(p, '3.45mm', [
+        '2.95mm',
+        '2.950mm',
         '6.95mm + case_middle_height_offset',
         '6.95mm+case_middle_height_offset',
         '6.950mm + case_middle_height_offset',
@@ -483,12 +487,15 @@ export function setupParameters(design: adsk.fusion.Design) {
     })(),
 
     // Schritt 21b / p028: Integrierter Druckschalter (Lasche) in Case_Middle (Power-Button)
-    middleButtonTabLength: getOrCreateParam(
-      'middle_button_tab_length',
-      '10mm',
-      'mm',
-      'Länge des vertikalen Hebelarms der Druckschalter-Lasche von Kreiszentrum nach oben bis Verjüngung (p028)'
-    ),
+    middleButtonTabLength: (() => {
+      const p = getOrCreateParam(
+        'middle_button_tab_length',
+        '9mm',
+        'mm',
+        'Länge der geraden Druckschalter-Lasche von Kreiszentrum nach oben (1mm gekürzt, ohne Schnörkel, p028)'
+      );
+      return ensureParamExpression(p, '9mm', ['10mm', '10.0mm', '10.00mm']);
+    })(),
     middleButtonTabWidth: getOrCreateParam(
       'middle_button_tab_width',
       '4mm',
@@ -499,19 +506,19 @@ export function setupParameters(design: adsk.fusion.Design) {
       'middle_button_neck_length',
       '2mm',
       'mm',
-      'Höhe des Biegestegs (Hals, Z) der Druckschalter-Lasche (p028)'
+      'Höhe des Biegestegs (Hals, Z) der Druckschalter-Lasche (Legacy, p028)'
     ),
     middleButtonNeckWidth: getOrCreateParam(
       'middle_button_neck_width',
       '2mm',
       'mm',
-      'Breite des Biegestegs (Hals, Y) der Druckschalter-Lasche (p028)'
+      'Breite des Biegestegs (Hals, Y) der Druckschalter-Lasche (Legacy, p028)'
     ),
     middleButtonNeckFillet: getOrCreateParam(
       'middle_button_neck_fillet',
       '0.5mm',
       'mm',
-      'Verrundungsradius an den Übergängen zum Biegesteg (R0.5mm, p028)'
+      'Verrundungsradius an den Übergängen zum Biegesteg (Legacy, p028)'
     ),
     middleButtonCutWidth: getOrCreateParam(
       'middle_button_cut_width',
@@ -525,12 +532,15 @@ export function setupParameters(design: adsk.fusion.Design) {
       'mm',
       'Verrundungsradius für die Ecken des Kragenausschnitts in Case_Bottom (p028)'
     ),
-    middleButtonInnerRecessHeight: getOrCreateParam(
-      'middle_button_inner_recess_height',
-      '6mm',
-      'mm',
-      'Höhe der innenliegenden Dickenreduzierung der Druckschalter-Lasche oberhalb der Gehäusestufe (p028)'
-    ),
+    middleButtonInnerRecessHeight: (() => {
+      const p = getOrCreateParam(
+        'middle_button_inner_recess_height',
+        '5.5mm',
+        'mm',
+        'Höhe der innenliegenden Dickenreduzierung der Druckschalter-Lasche oberhalb der Gehäusestufe (p028)'
+      );
+      return ensureParamExpression(p, '5.5mm', ['6mm', '6.0mm', '6.00mm']);
+    })(),
     middleButtonInnerRecessChamfer: getOrCreateParam(
       'middle_button_inner_recess_chamfer',
       '1.5mm',

@@ -885,17 +885,15 @@ export interface MiddleOpeningResult {
 }
 
 /**
- * Schritt 21b (prompt/p023/prompt.md):
- * Konstruiert ein kreisrundes Durchgangsloch auf der kurzen linken Gehäuseseite (X = -45.7 mm)
- * in 'Case_Middle' und dem Kragen von 'Case_Bottom' (prompt/p023/img_1.png):
+ * Schritt 21b (prompt/p028/prompt.md):
+ * Konstruiert eine integrierte, federnde Druckschalter-Lasche auf der kurzen linken Gehäuseseite (X = -45.7 mm)
+ * in 'Case_Middle' (bzw. 'Case_Main') und eine Freistellung im Steckkragen von 'Case_Bottom':
  *
- * - Kreisdurchmesser 1.0 mm (Radius 0.5 mm, middle_hole_diameter bzw. middle_opening_circle_diameter).
+ * - Kreisrunder Tastkopf mit Ø 4.0 mm (Radius 2.0 mm, middle_button_tab_width).
  * - Position Y-Achse: Y = -9.6 mm (middle_hole_y_offset).
- * - Position Z-Achse: Z = 2.95 mm (middle_hole_z_offset bzw. middle_opening_z_offset, konstant zu Case_Bottom).
+ * - Position Z-Achse: Z = 3.45 mm (middle_hole_z_offset bzw. middle_opening_z_offset, konstant zu Case_Bottom, um 0.5 mm nach oben verschoben).
  * - Vollständiger Durchgangsschnitt von außerhalb (X = -5.5 cm) komplett durch die Wand ins Gehäuseinnere
  *   durch 'Case_Middle' und den Steckkragen von 'Case_Bottom'.
- *
- * Hinweis: Die zuvor vorgesehene rechteckige Öffnung mit 0.4 mm Außenhaut wurde wieder entfernt.
  */
 export function createMiddleButtonTab(
   rootComp: adsk.fusion.Component,
@@ -913,16 +911,12 @@ export function createMiddleButtonTab(
   const circleCenterY = params.middleHoleYOffset ? params.middleHoleYOffset.value : -0.96;           // -0.96 cm (-9.6 mm)
   const circleCenterZ = (params.middleHoleZOffset || params.middleOpeningZOffset)
     ? (params.middleHoleZOffset || params.middleOpeningZOffset).value
-    : 0.295;                                                                                          // 0.295 cm (2.95 mm, konstant zu Case_Bottom)
-  const tabLenCm = params.middleButtonTabLength ? params.middleButtonTabLength.value : 1.0;          // 1.0 cm (10.0 mm)
+    : 0.345;                                                                                          // 0.345 cm (3.45 mm, konstant zu Case_Bottom)
+  const tabLenCm = params.middleButtonTabLength ? params.middleButtonTabLength.value : 0.9;          // 0.9 cm (9.0 mm, um 1 mm gekürzt)
   const tabWidthCm = params.middleButtonTabWidth ? params.middleButtonTabWidth.value : 0.4;         // 0.4 cm (4.0 mm)
-  const neckLenCm = params.middleButtonNeckLength ? params.middleButtonNeckLength.value : 0.2;       // 0.2 cm (2.0 mm)
-  const neckWidthCm = params.middleButtonNeckWidth ? params.middleButtonNeckWidth.value : 0.2;       // 0.2 cm (2.0 mm)
-  const neckFilletCm = params.middleButtonNeckFillet ? params.middleButtonNeckFillet.value : 0.05;   // 0.05 cm (0.5 mm)
   const cutWidthCm = params.middleButtonCutWidth ? params.middleButtonCutWidth.value : 0.03;        // 0.03 cm (0.3 mm)
 
   const headRadiusCm = tabWidthCm / 2.0;    // 0.20 cm (2.0 mm)
-  const neckHalfWCm = neckWidthCm / 2.0;    // 0.10 cm (1.0 mm)
   const outerRadiusCm = headRadiusCm + cutWidthCm; // 0.23 cm
 
   const sidePlaneX = -5.5; // in cm (außerhalb der linken Außenwand bei X = -4.57 cm)
@@ -937,7 +931,7 @@ export function createMiddleButtonTab(
   planeTab.name = "Plane_Middle_Button_Tab";
 
   // -----------------------------------------------------------------
-  // 1. Schnitt-Schlitz der Lasche in Case_Middle (bzw. Case_Main)
+  // 1. Schnitt-Schlitz der Lasche in Case_Middle (bzw. Case_Main): Gerade Kontur ohne Schnörkel
   // -----------------------------------------------------------------
   const sketchTab = rootComp.sketches.add(planeTab);
   sketchTab.name = "Sketch_Middle_Button_Tab";
@@ -950,122 +944,45 @@ export function createMiddleButtonTab(
   const Yc = circleCenterY;
   const Zc = circleCenterZ;
   const Rh = headRadiusCm;
-  const Hn = neckHalfWCm;
-  const Rf = neckFilletCm;
   const w = cutWidthCm;
   const Ro = outerRadiusCm;
+  const Zend = Zc + tabLenCm;
 
-  const Z0 = Zc;
-  const Z1 = Z0 + tabLenCm;
-  const Zmid = Z1 + neckFilletCm;
-  const Z2 = Z1 + 2.0 * neckFilletCm;
-  const Zend = Z2 + neckLenCm;
+  // 1. Innenkontur rechter Hebelarm: Gerade von (Yc + Rh, Zend) nach (Yc + Rh, Zc)
+  lines.addByTwoPoints(pt(Yc + Rh, Zend), pt(Yc + Rh, Zc));
 
-  const diag = Rf * Math.SQRT1_2; // Rf * cos(45 deg) = Rf * sin(45 deg)
-
-  // 1. Innenkontur rechter Hebelarm: Gerade von (Yc + Rh, Z0) nach (Yc + Rh, Z1)
-  lines.addByTwoPoints(pt(Yc + Rh, Z0), pt(Yc + Rh, Z1));
-
-  // 2. Innenkontur Übergangsbogen 1 rechts (konvex): von (Yc + Rh, Z1) nach (Yc + Rh - Rf, Zmid)
+  // 2. Innerer Tastkopf-Halbkreis unten (Radius Rh): von (Yc + Rh, Zc) über Scheitel (Yc, Zc - Rh) nach (Yc - Rh, Zc)
   arcs.addByThreePoints(
-    pt(Yc + Rh, Z1),
-    pt(Yc + Rh - Rf + diag, Zmid - Rf + diag),
-    pt(Yc + Rh - Rf, Zmid)
-  );
-
-  // 3. Innenkontur Übergangsbogen 2 rechts (konkav): von (Yc + Rh - Rf, Zmid) nach (Yc + Hn, Z2)
-  arcs.addByThreePoints(
-    pt(Yc + Rh - Rf, Zmid),
-    pt(Yc + Hn + Rf - diag, Zmid + Rf - diag),
-    pt(Yc + Hn, Z2)
-  );
-
-  // 4. Innenkontur Hals rechts: Gerade von (Yc + Hn, Z2) nach (Yc + Hn, Zend)
-  lines.addByTwoPoints(pt(Yc + Hn, Z2), pt(Yc + Hn, Zend));
-
-  // 5. Oberer rechter Abschluss (Schnittbreite w): Gerade von (Yc + Hn, Zend) nach (Yc + Hn + w, Zend)
-  lines.addByTwoPoints(pt(Yc + Hn, Zend), pt(Yc + Hn + w, Zend));
-
-  // 6. Außenkontur Hals rechts: Gerade von (Yc + Hn + w, Zend) nach (Yc + Hn + w, Z2)
-  lines.addByTwoPoints(pt(Yc + Hn + w, Zend), pt(Yc + Hn + w, Z2));
-
-  // 7. Außenkontur Übergangsbogen 2 rechts (konkav): von (Yc + Hn + w, Z2) nach (Yc + Rh - Rf + w, Zmid)
-  arcs.addByThreePoints(
-    pt(Yc + Hn + w, Z2),
-    pt(Yc + Hn + Rf - diag + w, Zmid + Rf - diag),
-    pt(Yc + Rh - Rf + w, Zmid)
-  );
-
-  // 8. Außenkontur Übergangsbogen 1 rechts (konvex): von (Yc + Rh - Rf + w, Zmid) nach (Yc + Rh + w, Z1)
-  arcs.addByThreePoints(
-    pt(Yc + Rh - Rf + w, Zmid),
-    pt(Yc + Rh - Rf + diag + w, Zmid - Rf + diag),
-    pt(Yc + Rh + w, Z1)
-  );
-
-  // 9. Außenkontur rechter Hebelarm: Gerade von (Yc + Rh + w, Z1) nach (Yc + Ro, Z0)
-  lines.addByTwoPoints(pt(Yc + Rh + w, Z1), pt(Yc + Ro, Z0));
-
-  // 10. Äußerer Tastkopf-Halbkreis unten (Radius Ro): von (Yc + Ro, Zc) über Scheitel (Yc, Zc - Ro) nach (Yc - Ro, Zc)
-  arcs.addByThreePoints(
-    pt(Yc + Ro, Zc),
-    pt(Yc, Zc - Ro),
-    pt(Yc - Ro, Zc)
-  );
-
-  // 11. Außenkontur linker Hebelarm: Gerade von (Yc - Ro, Z0) nach (Yc - Rh - w, Z1)
-  lines.addByTwoPoints(pt(Yc - Ro, Z0), pt(Yc - Rh - w, Z1));
-
-  // 12. Außenkontur Übergangsbogen 1 links (konvex): von (Yc - Rh - w, Z1) nach (Yc - Rh + Rf - w, Zmid)
-  arcs.addByThreePoints(
-    pt(Yc - Rh - w, Z1),
-    pt(Yc - Rh + Rf - diag - w, Zmid - Rf + diag),
-    pt(Yc - Rh + Rf - w, Zmid)
-  );
-
-  // 13. Außenkontur Übergangsbogen 2 links (konkav): von (Yc - Rh + Rf - w, Zmid) nach (Yc - Hn - w, Z2)
-  arcs.addByThreePoints(
-    pt(Yc - Rh + Rf - w, Zmid),
-    pt(Yc - Hn - Rf + diag - w, Zmid + Rf - diag),
-    pt(Yc - Hn - w, Z2)
-  );
-
-  // 14. Außenkontur Hals links: Gerade von (Yc - Hn - w, Z2) nach (Yc - Hn - w, Zend)
-  lines.addByTwoPoints(pt(Yc - Hn - w, Z2), pt(Yc - Hn - w, Zend));
-
-  // 15. Oberer linker Abschluss (Schnittbreite w): Gerade von (Yc - Hn - w, Zend) nach (Yc - Hn, Zend)
-  lines.addByTwoPoints(pt(Yc - Hn - w, Zend), pt(Yc - Hn, Zend));
-
-  // 16. Innenkontur Hals links: Gerade von (Yc - Hn, Zend) nach (Yc - Hn, Z2)
-  lines.addByTwoPoints(pt(Yc - Hn, Zend), pt(Yc - Hn, Z2));
-
-  // 17. Innenkontur Übergangsbogen 2 links (konkav): von (Yc - Hn, Z2) nach (Yc - Rh + Rf, Zmid)
-  arcs.addByThreePoints(
-    pt(Yc - Hn, Z2),
-    pt(Yc - Hn - Rf + diag, Zmid + Rf - diag),
-    pt(Yc - Rh + Rf, Zmid)
-  );
-
-  // 18. Innenkontur Übergangsbogen 1 links (konvex): von (Yc - Rh + Rf, Zmid) nach (Yc - Rh, Z1)
-  arcs.addByThreePoints(
-    pt(Yc - Rh + Rf, Zmid),
-    pt(Yc - Rh + Rf - diag, Zmid - Rf + diag),
-    pt(Yc - Rh, Z1)
-  );
-
-  // 19. Innenkontur linker Hebelarm: Gerade von (Yc - Rh, Z1) nach (Yc - Rh, Z0)
-  lines.addByTwoPoints(pt(Yc - Rh, Z1), pt(Yc - Rh, Z0));
-
-  // 20. Innerer Tastkopf-Halbkreis unten (Radius Rh): von (Yc - Rh, Z0) über Scheitel (Yc, Zc - Rh) nach (Yc + Rh, Z0)
-  arcs.addByThreePoints(
-    pt(Yc - Rh, Z0),
+    pt(Yc + Rh, Zc),
     pt(Yc, Zc - Rh),
-    pt(Yc + Rh, Z0)
+    pt(Yc - Rh, Zc)
   );
+
+  // 3. Innenkontur linker Hebelarm: Gerade von (Yc - Rh, Zc) nach (Yc - Rh, Zend)
+  lines.addByTwoPoints(pt(Yc - Rh, Zc), pt(Yc - Rh, Zend));
+
+  // 4. Oberer linker Abschluss (Schnittbreite w): Gerade von (Yc - Rh, Zend) nach (Yc - Ro, Zend)
+  lines.addByTwoPoints(pt(Yc - Rh, Zend), pt(Yc - Ro, Zend));
+
+  // 5. Außenkontur linker Hebelarm: Gerade von (Yc - Ro, Zend) nach (Yc - Ro, Zc)
+  lines.addByTwoPoints(pt(Yc - Ro, Zend), pt(Yc - Ro, Zc));
+
+  // 6. Äußerer Tastkopf-Halbkreis unten (Radius Ro): von (Yc - Ro, Zc) über Scheitel (Yc, Zc - Ro) nach (Yc + Ro, Zc)
+  arcs.addByThreePoints(
+    pt(Yc - Ro, Zc),
+    pt(Yc, Zc - Ro),
+    pt(Yc + Ro, Zc)
+  );
+
+  // 7. Außenkontur rechter Hebelarm: Gerade von (Yc + Ro, Zc) nach (Yc + Ro, Zend)
+  lines.addByTwoPoints(pt(Yc + Ro, Zc), pt(Yc + Ro, Zend));
+
+  // 8. Oberer rechter Abschluss (Schnittbreite w): Gerade von (Yc + Ro, Zend) nach (Yc + Rh, Zend)
+  lines.addByTwoPoints(pt(Yc + Ro, Zend), pt(Yc + Rh, Zend));
 
   // Profil für den Schnittschlitz ermitteln
   let slotProfile: adsk.fusion.Profile | null = null;
-  const expectedSlotArea = (2.0 * (tabLenCm + 2.0 * Rf + neckLenCm) + Math.PI * Rh) * w;
+  const expectedSlotArea = (2.0 * tabLenCm + Math.PI * Rh) * w;
   let minAreaDiff = 1e9;
 
   for (let i = 0; i < sketchTab.profiles.count; i++) {
@@ -1121,7 +1038,7 @@ export function createMiddleButtonTab(
 
   const recessHeightCm = params.middleButtonInnerRecessHeight
     ? params.middleButtonInnerRecessHeight.value
-    : 0.6; // 6.0 mm (0.6 cm)
+    : 0.55; // 5.5 mm (0.55 cm)
   const recessChamferCm = params.middleButtonInnerRecessChamfer
     ? params.middleButtonInnerRecessChamfer.value
     : 0.15; // 1.5 mm (0.15 cm)
@@ -1129,8 +1046,8 @@ export function createMiddleButtonTab(
   let zTop = zStep + recessHeightCm;
   let zChamferEnd = zTop + recessChamferCm;
 
-  // Begrenzung: Fase endet sicher vor dem Ende des geraden Hebelarms (Z1)
-  const maxZChamferEnd = (circleCenterZ + tabLenCm) - 0.02;
+  // Begrenzung: Fase endet sicher vor dem oberen Ende der Lasche (Zend)
+  const maxZChamferEnd = Zend - 0.02;
   if (zChamferEnd > maxZChamferEnd) {
     const overflow = zChamferEnd - maxZChamferEnd;
     zTop = Math.max(zStep + 0.1, zTop - overflow);
@@ -1478,7 +1395,7 @@ export function createMiddleButtonTab(
   liveBottom.name = "Case_Bottom";
 
   console.log(
-    `Schritt 21b erfolgreich: Druckschalter-Lasche (Ø ${(headRadiusCm * 20).toFixed(1)}mm, L ${(tabLenCm * 10).toFixed(1)}mm, Hals ${(neckLenCm * 10).toFixed(1)}x${(neckWidthCm * 10).toFixed(1)}mm, vertikal von oben nach unten) in ${middleName} und Kragenausschnitt in Case_Bottom erzeugt.`
+    `Schritt 21b erfolgreich: Gerade Druckschalter-Lasche (Ø ${(headRadiusCm * 20).toFixed(1)}mm, L ${(tabLenCm * 10).toFixed(1)}mm, ohne Schnörkel) in ${middleName} und Kragenausschnitt in Case_Bottom erzeugt.`
   );
 
   return { middleBody: liveMiddle, bottomBody: liveBottom };
