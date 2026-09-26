@@ -1,11 +1,8 @@
 import { adsk } from "@adsk/fusion";
 import { Params } from "./parameters";
-import { TOL, createCollection, createOffsetPlane, applyFilletWithFallbacks, getLiveBody } from "./utils";
+import { CasePairBodies, createCollection, createOffsetPlane, applyFilletWithFallbacks, getLiveBody } from "./utils";
 
-export interface ChassisBodies {
-  topBody: adsk.fusion.BRepBody;
-  bottomBody: adsk.fusion.BRepBody;
-}
+export type ChassisBodies = CasePairBodies;
 
 /**
  * Sucht eine horizontale, ebene Fläche auf einem Körper anhand eines Ziel-Z-Wertes.

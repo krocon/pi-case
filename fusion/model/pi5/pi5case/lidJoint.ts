@@ -1,6 +1,12 @@
 import { adsk } from "@adsk/fusion";
 import { Params } from "./parameters";
-import { TOL, createCollection, createOffsetPlane, applyChamferWithFallbacks, getLiveBody } from "./utils";
+import {
+  createOffsetPlane,
+  applyChamferWithFallbacks,
+  getLiveBody,
+  drawRectOnXZ,
+  drawRectOnYZ
+} from "./utils";
 
 export interface LidJointResult {
   topBody: adsk.fusion.BRepBody;
@@ -38,54 +44,6 @@ function findHorizontalPlanarFaceWithNormal(
   }
 
   return bestFace;
-}
-
-/**
- * Zeichnet ein planares Rechteck auf einer Skizze in einer XZ-Ebene bei konstantem Y.
- * Nutzt sketch.modelToSketchSpace() zur fehlerfreien Koordinatentransformation (AGENTS.md §4.4).
- */
-function drawRectOnXZ(
-  sketch: adsk.fusion.Sketch,
-  minX: number,
-  maxX: number,
-  minZ: number,
-  maxZ: number,
-  yVal: number
-): void {
-  const p0 = sketch.modelToSketchSpace(adsk.core.Point3D.create(minX, yVal, minZ));
-  const p1 = sketch.modelToSketchSpace(adsk.core.Point3D.create(maxX, yVal, minZ));
-  const p2 = sketch.modelToSketchSpace(adsk.core.Point3D.create(maxX, yVal, maxZ));
-  const p3 = sketch.modelToSketchSpace(adsk.core.Point3D.create(minX, yVal, maxZ));
-
-  const lines = sketch.sketchCurves.sketchLines;
-  lines.addByTwoPoints(p0, p1);
-  lines.addByTwoPoints(p1, p2);
-  lines.addByTwoPoints(p2, p3);
-  lines.addByTwoPoints(p3, p0);
-}
-
-/**
- * Zeichnet ein planares Rechteck auf einer Skizze in einer YZ-Ebene bei konstantem X.
- * Nutzt sketch.modelToSketchSpace() zur fehlerfreien Koordinatentransformation (AGENTS.md §4.4).
- */
-function drawRectOnYZ(
-  sketch: adsk.fusion.Sketch,
-  minY: number,
-  maxY: number,
-  minZ: number,
-  maxZ: number,
-  xVal: number
-): void {
-  const p0 = sketch.modelToSketchSpace(adsk.core.Point3D.create(xVal, minY, minZ));
-  const p1 = sketch.modelToSketchSpace(adsk.core.Point3D.create(xVal, maxY, minZ));
-  const p2 = sketch.modelToSketchSpace(adsk.core.Point3D.create(xVal, maxY, maxZ));
-  const p3 = sketch.modelToSketchSpace(adsk.core.Point3D.create(xVal, minY, maxZ));
-
-  const lines = sketch.sketchCurves.sketchLines;
-  lines.addByTwoPoints(p0, p1);
-  lines.addByTwoPoints(p1, p2);
-  lines.addByTwoPoints(p2, p3);
-  lines.addByTwoPoints(p3, p0);
 }
 
 /**

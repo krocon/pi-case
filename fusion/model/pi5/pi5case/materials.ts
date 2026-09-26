@@ -1,6 +1,6 @@
 import { adsk } from "@adsk/fusion";
 import { Params } from "./parameters";
-import { getLiveBody } from "./utils";
+import { CaseAssemblyBodies, getLiveBody } from "./utils";
 
 // =====================================================================
 // MATERIAL & ERSCHEINUNGSBILD MANAGEMENT (AGENTS.md KONFORM)
@@ -290,7 +290,7 @@ function applyMaterialAndAppearanceToBody(
 export function assignBodyMaterials(
   rootComp: adsk.fusion.Component,
   params: Params,
-  explicitBodies?: Record<string, adsk.fusion.BRepBody | null | undefined>
+  explicitBodies?: CaseAssemblyBodies | Record<string, adsk.fusion.BRepBody | null | undefined>
 ): void {
   // Überprüfen, ob Materialzuweisung parametrisch aktiviert ist
   if (params.enableMaterials && Math.round(params.enableMaterials.value) === 0) {
@@ -381,7 +381,7 @@ export function assignBodyMaterials(
 
   // A: Explizit übergebene Körper verarbeiten
   if (explicitBodies) {
-    for (const [key, bodyRef] of Object.entries(explicitBodies)) {
+    for (const bodyRef of Object.values(explicitBodies)) {
       if (!bodyRef) continue;
       const liveBody = getLiveBody(rootComp, bodyRef, bodyRef.name);
       if (!liveBody) continue;

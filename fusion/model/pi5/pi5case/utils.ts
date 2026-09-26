@@ -3,6 +3,21 @@ import { adsk } from "@adsk/fusion";
 /** Geometrische Toleranz für Such- und Prüfaufgaben (in cm). */
 export const TOL = 0.05; // 0.5 mm in cm
 
+/** Repräsentiert das Gehäuse-Paar aus oberem und unterem Körper (Top & Bottom) */
+export interface CasePairBodies {
+  topBody: adsk.fusion.BRepBody;
+  bottomBody: adsk.fusion.BRepBody;
+}
+
+/** Repräsentiert die gesamte Baugruppe druckbarer oder aktiver Körper */
+export interface CaseAssemblyBodies {
+  top?: adsk.fusion.BRepBody;
+  middle?: adsk.fusion.BRepBody;
+  bottom: adsk.fusion.BRepBody;
+  main?: adsk.fusion.BRepBody;
+  logo?: adsk.fusion.BRepBody;
+}
+
 /** Erzeugt eine Fusion 360 ObjectCollection aus Elementen oder Arrays */
 export function createCollection<T extends adsk.core.Base>(...items: (T | T[] | null | undefined)[]): adsk.core.ObjectCollection {
   const collection = adsk.core.ObjectCollection.create();
@@ -21,6 +36,89 @@ export function createCollection<T extends adsk.core.Base>(...items: (T | T[] | 
     }
   }
   return collection;
+}
+
+/**
+ * Zeichnet ein planares Rechteck auf eine Skizze im lokalen Skizzenraum über 4 geordnete Punkte.
+ * Nutzt sketch.modelToSketchSpace() zur fehlerfreien Koordinatentransformation (AGENTS.md §4.4).
+ */
+export function draw3DRectangle(
+  sketch: adsk.fusion.Sketch,
+  p0: adsk.core.Point3D,
+  p1: adsk.core.Point3D,
+  p2: adsk.core.Point3D,
+  p3: adsk.core.Point3D
+): void {
+  const s0 = sketch.modelToSketchSpace(p0);
+  const s1 = sketch.modelToSketchSpace(p1);
+  const s2 = sketch.modelToSketchSpace(p2);
+  const s3 = sketch.modelToSketchSpace(p3);
+
+  const lines = sketch.sketchCurves.sketchLines;
+  lines.addByTwoPoints(s0, s1);
+  lines.addByTwoPoints(s1, s2);
+  lines.addByTwoPoints(s2, s3);
+  lines.addByTwoPoints(s3, s0);
+}
+
+/**
+ * Zeichnet ein planares Rechteck auf einer Skizze in der XY-Ebene bei Z = zVal.
+ */
+export function drawRectOnXY(
+  sketch: adsk.fusion.Sketch,
+  minX: number,
+  maxX: number,
+  minY: number,
+  maxY: number,
+  zVal: number = 0
+): void {
+  draw3DRectangle(
+    sketch,
+    adsk.core.Point3D.create(minX, minY, zVal),
+    adsk.core.Point3D.create(maxX, minY, zVal),
+    adsk.core.Point3D.create(maxX, maxY, zVal),
+    adsk.core.Point3D.create(minX, maxY, zVal)
+  );
+}
+
+/**
+ * Zeichnet ein planares Rechteck auf einer Skizze in einer XZ-Ebene bei konstantem Y.
+ */
+export function drawRectOnXZ(
+  sketch: adsk.fusion.Sketch,
+  minX: number,
+  maxX: number,
+  minZ: number,
+  maxZ: number,
+  yVal: number
+): void {
+  draw3DRectangle(
+    sketch,
+    adsk.core.Point3D.create(minX, yVal, minZ),
+    adsk.core.Point3D.create(maxX, yVal, minZ),
+    adsk.core.Point3D.create(maxX, yVal, maxZ),
+    adsk.core.Point3D.create(minX, yVal, maxZ)
+  );
+}
+
+/**
+ * Zeichnet ein planares Rechteck auf einer Skizze in einer YZ-Ebene bei konstantem X.
+ */
+export function drawRectOnYZ(
+  sketch: adsk.fusion.Sketch,
+  minY: number,
+  maxY: number,
+  minZ: number,
+  maxZ: number,
+  xVal: number
+): void {
+  draw3DRectangle(
+    sketch,
+    adsk.core.Point3D.create(xVal, minY, minZ),
+    adsk.core.Point3D.create(xVal, maxY, minZ),
+    adsk.core.Point3D.create(xVal, maxY, maxZ),
+    adsk.core.Point3D.create(xVal, minY, maxZ)
+  );
 }
 
 /** Ermittelt den aktuellen Live-BRepBody aus comp.bRepBodies mit Schutz vor ungültigen BRep-Referenzen */

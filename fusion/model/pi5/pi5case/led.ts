@@ -101,7 +101,6 @@ export function createLedOpeningAndMount(
   const leftOuterX =
     - (params.boardWidth.value + 2.0 * params.boardClearance.value) / 2.0 -
     params.shellThickness.value; // -4.57 cm (-45.7 mm)
-  const grooveWallX = leftOuterX + params.grooveInset.value; // -4.42 cm (-44.2 mm)
   const innerWallX = leftOuterX + params.shellThickness.value; // -4.27 cm (-42.7 mm)
 
   // Halterungs-Tiefe nach innen (+X Richtung):
@@ -109,9 +108,8 @@ export function createLedOpeningAndMount(
   const sleeveDepthInward = bodyDepth; // 0.25 cm (2.5 mm)
   const sleeveEndX = innerWallX + sleeveDepthInward; // -4.27 + 0.25 = -4.02 cm (-40.2 mm)
 
-  // Gehäusedecke von Case_Top (Deckelaußenfläche bei topHeight = 4.0 cm, Innenfläche bei ceilingZ = 3.70 cm)
+  // Gehäusedecke von Case_Top (Deckelaußenfläche bei topHeight = 4.0 cm, Innenfläche bei Z = 3.70 cm)
   const topHeight = params.caseTopHeight.value; // 4.0 cm (40.0 mm)
-  const ceilingZ = topHeight - params.shellThickness.value; // 3.70 cm (37.0 mm)
 
   // Halterungs-Außenabmessungen entlang Y und Z
   const sleeveMinY = ledY - (openingW / 2.0 + wallThick);

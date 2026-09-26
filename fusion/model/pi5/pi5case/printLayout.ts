@@ -1,22 +1,9 @@
 import { adsk } from "@adsk/fusion";
 import { Params } from "./parameters";
-import { createCollection, getLiveBody } from "./utils";
+import { CaseAssemblyBodies, createCollection, getLiveBody } from "./utils";
 
-export interface PrintableBodiesInput {
-  top?: adsk.fusion.BRepBody;
-  middle?: adsk.fusion.BRepBody;
-  bottom: adsk.fusion.BRepBody;
-  main?: adsk.fusion.BRepBody;
-  logo?: adsk.fusion.BRepBody;
-}
-
-export interface PrintableBodiesResult {
-  top?: adsk.fusion.BRepBody;
-  middle?: adsk.fusion.BRepBody;
-  bottom: adsk.fusion.BRepBody;
-  main?: adsk.fusion.BRepBody;
-  logo?: adsk.fusion.BRepBody;
-}
+export type PrintableBodiesInput = CaseAssemblyBodies;
+export type PrintableBodiesResult = CaseAssemblyBodies;
 
 /**
  * Ordnet alle druckbaren Gehäusekörper des Raspberry Pi 5 für den FDM-Druck

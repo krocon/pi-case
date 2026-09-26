@@ -1,6 +1,6 @@
 import { adsk } from "@adsk/fusion";
 import { Params } from "./parameters";
-import { getLiveBody, applyFilletWithFallbacks } from "./utils";
+import { CaseAssemblyBodies, getLiveBody, applyFilletWithFallbacks } from "./utils";
 
 // =====================================================================
 // SPANNUNGSREDUZIERENDE FASEN & VERRUNDUNGEN FÜR FDM-DRUCK (SCHRITT 22)
@@ -308,19 +308,8 @@ export function collectCaseTopInnerEdges(
   return result;
 }
 
-export interface StressReliefBodiesInput {
-  top?: adsk.fusion.BRepBody;
-  middle?: adsk.fusion.BRepBody;
-  bottom: adsk.fusion.BRepBody;
-  main?: adsk.fusion.BRepBody;
-}
-
-export interface StressReliefResult {
-  top?: adsk.fusion.BRepBody;
-  middle?: adsk.fusion.BRepBody;
-  bottom: adsk.fusion.BRepBody;
-  main?: adsk.fusion.BRepBody;
-}
+export type StressReliefBodiesInput = CaseAssemblyBodies;
+export type StressReliefResult = CaseAssemblyBodies;
 
 /**
  * Führt die spannungsreduzierenden Behandlungen an allen Gehäusekörpern aus.

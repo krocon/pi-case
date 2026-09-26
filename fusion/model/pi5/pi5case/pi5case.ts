@@ -1,10 +1,10 @@
 import { adsk } from "@adsk/fusion";
 import { setupParameters } from "./parameters";
 import {
+  CaseAssemblyBodies,
   getLiveBody,
   stepRefresh,
   hideSketchesAndConstruction,
-  isAssemblyConstruction,
   detectAssemblyConstruction
 } from "./utils";
 import {
@@ -21,8 +21,7 @@ import {
   createFrontPortRecess,
   createLidVentilationSlots,
   createInnerSsdPocket,
-  createMiddleButtonTab,
-  createMiddleSideHole
+  createMiddleButtonTab
 } from "./openings";
 import { createPi5Standoffs } from "./standoffs";
 import { createTongueAndGrooveJoint } from "./joint";
@@ -262,61 +261,52 @@ export function run(_context: string): void {
     // -----------------------------------------------------------------
     // 14b. Schritt 21b / p028: Integrierter Druckschalter (Lasche) in Case_Middle bzw. Case_Main & Kragenausschnitt in Case_Bottom
     // -----------------------------------------------------------------
+    let logoBody: adsk.fusion.BRepBody | undefined = undefined;
+
+    const getActiveBodies = (): CaseAssemblyBodies => (
+      isMerged
+        ? { main: mainBody, bottom: bottomBody, logo: logoBody }
+        : { top: topBody, middle: middleBody, bottom: bottomBody, logo: logoBody }
+    );
+
+    const getUpperBody = (): adsk.fusion.BRepBody => (isMerged ? mainBody! : middleBody!);
+    const setUpperBody = (body: adsk.fusion.BRepBody): void => {
+      if (isMerged) {
+        mainBody = body;
+      } else {
+        middleBody = body;
+      }
+    };
+
     console.log(
       `Schritt 21b: Erzeuge integrierten Druckschalter (Lasche Ø4mm, L 10mm, Hals 2x2mm, R0.5mm, vertikal von oben nach unten, p028) in ${isMerged ? "Case_Main" : "Case_Middle"} und Kragenausschnitt in Case_Bottom...`
     );
-    const targetUpperForHole = isMerged ? mainBody! : middleBody!;
-    const middleCut = createMiddleButtonTab(rootComp, targetUpperForHole, bottomBody, params);
-    if (isMerged) {
-      mainBody = middleCut.middleBody;
-    } else {
-      middleBody = middleCut.middleBody;
-    }
+    const middleCut = createMiddleButtonTab(rootComp, getUpperBody(), bottomBody, params);
+    setUpperBody(middleCut.middleBody);
     bottomBody = middleCut.bottomBody;
     stepRefresh(app, true);
-
 
     // -----------------------------------------------------------------
     // 15. Schritt 22: Spannungsreduzierende Fasen & Verrundungen an Innenkanten
     // -----------------------------------------------------------------
     console.log("Schritt 22: Wende spannungsreduzierende Verrundungen an nicht-sichtbaren Innenkanten an (enable_stress_relief_fillets)...");
-    const stressResult = applyStressReliefTreatments(
-      rootComp,
-      isMerged
-        ? {
-            bottom: bottomBody,
-            main: mainBody!
-          }
-        : {
-            top: topBody,
-            middle: middleBody!,
-            bottom: bottomBody
-          },
-      params
-    );
+    const stressResult = applyStressReliefTreatments(rootComp, getActiveBodies(), params);
     if (isMerged) {
       mainBody = stressResult.main!;
-      bottomBody = stressResult.bottom;
     } else {
       topBody = stressResult.top!;
       middleBody = stressResult.middle!;
-      bottomBody = stressResult.bottom;
     }
+    bottomBody = stressResult.bottom;
     stepRefresh(app, true);
 
     // -----------------------------------------------------------------
     // 16. Schritt 23: Logo & Passvertiefung (Mulde) an linker Seitenwand
     // -----------------------------------------------------------------
-    let logoBody: adsk.fusion.BRepBody | undefined = undefined;
     if (Math.round(params.createLogo.value) === 1) {
       console.log("Schritt 23: Schneide Logo-Mulde (+0.2mm Spiel) und erzeuge Logo-Körper (0.5mm Dicke)...");
-      const targetUpperForLogo = isMerged ? mainBody! : middleBody!;
-      const logoResult = createCaseLogo(rootComp, targetUpperForLogo, params, bottomBody);
-      if (isMerged) {
-        mainBody = logoResult.middleBody;
-      } else {
-        middleBody = logoResult.middleBody;
-      }
+      const logoResult = createCaseLogo(rootComp, getUpperBody(), params, bottomBody);
+      setUpperBody(logoResult.middleBody);
       if (logoResult.bottomBody) {
         bottomBody = logoResult.bottomBody;
       }
@@ -339,30 +329,14 @@ export function run(_context: string): void {
     // 18. Schritt 25: FDM-Druckanordnung (layout_for_print)
     // -----------------------------------------------------------------
     console.log("Schritt 25: FDM-Druckanordnung prüfen und anwenden (layout_for_print)...");
-    const printResult = arrangeBodiesForPrint(
-      rootComp,
-      isMerged
-        ? {
-            main: mainBody!,
-            bottom: bottomBody,
-            logo: logoBody
-          }
-        : {
-            top: topBody,
-            middle: middleBody!,
-            bottom: bottomBody,
-            logo: logoBody
-          },
-      params
-    );
+    const printResult = arrangeBodiesForPrint(rootComp, getActiveBodies(), params);
     if (isMerged) {
       mainBody = printResult.main || mainBody;
-      bottomBody = printResult.bottom;
     } else {
       topBody = printResult.top || topBody;
       middleBody = printResult.middle || middleBody;
-      bottomBody = printResult.bottom;
     }
+    bottomBody = printResult.bottom;
     if (printResult.logo) {
       logoBody = printResult.logo;
     }
@@ -374,22 +348,7 @@ export function run(_context: string): void {
     //     - 'Logo': Kunststoff schwarz
     // -----------------------------------------------------------------
     console.log("Schritt 26: Zuweisung von Material und Erscheinungsbild ausführen (assignBodyMaterials)...");
-    assignBodyMaterials(
-      rootComp,
-      params,
-      isMerged
-        ? {
-            main: mainBody!,
-            bottom: bottomBody,
-            logo: logoBody
-          }
-        : {
-            top: topBody,
-            middle: middleBody!,
-            bottom: bottomBody,
-            logo: logoBody
-          }
-    );
+    assignBodyMaterials(rootComp, params, getActiveBodies());
     stepRefresh(app, true);
 
     // -----------------------------------------------------------------
@@ -398,35 +357,27 @@ export function run(_context: string): void {
     hideSketchesAndConstruction(rootComp);
     stepRefresh(app, true);
 
+    const finalizeBody = (body: adsk.fusion.BRepBody | undefined, name: string): adsk.fusion.BRepBody | undefined => {
+      if (!body) return undefined;
+      const live = getLiveBody(rootComp, body, name);
+      live.name = name;
+      return live;
+    };
+
+    bottomBody = finalizeBody(bottomBody, "Case_Bottom")!;
+    if (logoBody) {
+      logoBody = finalizeBody(logoBody, "Logo");
+    }
+
+    const logoMsg = logoBody ? `, ${logoBody.name} (Logo)` : "";
     if (isMerged && mainBody) {
-      mainBody = getLiveBody(rootComp, mainBody, "Case_Main");
-      bottomBody = getLiveBody(rootComp, bottomBody, "Case_Bottom");
-      mainBody.name = "Case_Main";
-      bottomBody.name = "Case_Bottom";
-
-      if (logoBody) {
-        logoBody = getLiveBody(rootComp, logoBody, "Logo");
-        logoBody.name = "Logo";
-      }
-
-      const logoMsg = logoBody ? `, ${logoBody.name} (Logo)` : "";
+      mainBody = finalizeBody(mainBody, "Case_Main")!;
       console.log(
         `Raspberry Pi 5 Gehäuse erfolgreich generiert: ${mainBody.name} (Hauptgehäuse), ${bottomBody.name} (Boden)${logoMsg}.`
       );
     } else {
-      topBody = getLiveBody(rootComp, topBody, "Case_Top");
-      middleBody = getLiveBody(rootComp, middleBody!, "Case_Middle");
-      bottomBody = getLiveBody(rootComp, bottomBody, "Case_Bottom");
-      topBody.name = "Case_Top";
-      middleBody.name = "Case_Middle";
-      bottomBody.name = "Case_Bottom";
-
-      if (logoBody) {
-        logoBody = getLiveBody(rootComp, logoBody, "Logo");
-        logoBody.name = "Logo";
-      }
-
-      const logoMsg = logoBody ? `, ${logoBody.name} (Logo)` : "";
+      topBody = finalizeBody(topBody, "Case_Top")!;
+      middleBody = finalizeBody(middleBody, "Case_Middle")!;
       console.log(
         `Raspberry Pi 5 Gehäuse erfolgreich generiert: ${topBody.name} (Deckel), ${middleBody.name} (Mittelteil), ${bottomBody.name} (Boden)${logoMsg}.`
       );

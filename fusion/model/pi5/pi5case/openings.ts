@@ -1,34 +1,15 @@
 import { adsk } from "@adsk/fusion";
 import { Params } from "./parameters";
-import { createCollection, getLiveBody, createOffsetPlane, applyFilletWithFallbacks, applyChamferWithFallbacks } from "./utils";
+import {
+  CasePairBodies,
+  createCollection,
+  getLiveBody,
+  createOffsetPlane,
+  applyChamferWithFallbacks,
+  draw3DRectangle
+} from "./utils";
 
-export interface CaseBodies {
-  topBody: adsk.fusion.BRepBody;
-  bottomBody: adsk.fusion.BRepBody;
-}
-
-/**
- * Zeichnet ein planares Rechteck auf eine Skizze im lokalen Skizzenraum.
- * Nutzt sketch.modelToSketchSpace() zur fehlerfreien Koordinatentransformation (AGENTS.md §4.4).
- */
-function draw3DRectangle(
-  sketch: adsk.fusion.Sketch,
-  p0: adsk.core.Point3D,
-  p1: adsk.core.Point3D,
-  p2: adsk.core.Point3D,
-  p3: adsk.core.Point3D
-): void {
-  const s0 = sketch.modelToSketchSpace(p0);
-  const s1 = sketch.modelToSketchSpace(p1);
-  const s2 = sketch.modelToSketchSpace(p2);
-  const s3 = sketch.modelToSketchSpace(p3);
-
-  const lines = sketch.sketchCurves.sketchLines;
-  lines.addByTwoPoints(s0, s1);
-  lines.addByTwoPoints(s1, s2);
-  lines.addByTwoPoints(s2, s3);
-  lines.addByTwoPoints(s3, s0);
-}
+export type CaseBodies = CasePairBodies;
 
 /**
  * Zeichnet ein planares, abgerundetes Rechteck in einer XZ-Ebene bei konstantem Y.
@@ -99,74 +80,6 @@ function drawRoundedRectangleXZ(
   lines.addByTwoPoints(sBLEnd, sTLStart); // Links
 }
 
-/**
- * Zeichnet ein planares, abgerundetes Rechteck in einer YZ-Ebene bei konstantem X.
- * Die 4 Ecken werden durch Kreisbögen mit Radius radiusCm abgerundet.
- * Nutzt sketch.modelToSketchSpace() zur fehlerfreien Koordinatentransformation (AGENTS.md §4.4).
- */
-function drawRoundedRectangleYZ(
-  sketch: adsk.fusion.Sketch,
-  minY: number,
-  maxY: number,
-  minZ: number,
-  maxZ: number,
-  xVal: number,
-  radiusCm: number
-): void {
-  const r = Math.min(radiusCm, (maxY - minY) / 2.0, (maxZ - minZ) / 2.0);
-  const diagOffset = r * (Math.SQRT2 / 2.0);
-
-  // 1. Top-Right Bogen (TR, Y -> maxY, Z -> maxZ): von oberer Kante (Z = maxZ) zur rechten Kante (Y = maxY)
-  const pTRStart = adsk.core.Point3D.create(xVal, maxY - r, maxZ);
-  const pTRMid = adsk.core.Point3D.create(xVal, maxY - r + diagOffset, maxZ - r + diagOffset);
-  const pTREnd = adsk.core.Point3D.create(xVal, maxY, maxZ - r);
-
-  // 2. Bottom-Right Bogen (BR, Y -> maxY, Z -> minZ): von rechter Kante (Y = maxY) zur unteren Kante (Z = minZ)
-  const pBRStart = adsk.core.Point3D.create(xVal, maxY, minZ + r);
-  const pBRMid = adsk.core.Point3D.create(xVal, maxY - r + diagOffset, minZ + r - diagOffset);
-  const pBREnd = adsk.core.Point3D.create(xVal, maxY - r, minZ);
-
-  // 3. Bottom-Left Bogen (BL, Y -> minY, Z -> minZ): von unterer Kante (Z = minZ) zur linken Kante (Y = minY)
-  const pBLStart = adsk.core.Point3D.create(xVal, minY + r, minZ);
-  const pBLMid = adsk.core.Point3D.create(xVal, minY + r - diagOffset, minZ + r - diagOffset);
-  const pBLEnd = adsk.core.Point3D.create(xVal, minY, minZ + r);
-
-  // 4. Top-Left Bogen (TL, Y -> minY, Z -> maxZ): von linker Kante (Y = minY) zur oberen Kante (Z = maxZ)
-  const pTLStart = adsk.core.Point3D.create(xVal, minY, maxZ - r);
-  const pTLMid = adsk.core.Point3D.create(xVal, minY + r - diagOffset, maxZ - r + diagOffset);
-  const pTLEnd = adsk.core.Point3D.create(xVal, minY + r, maxZ);
-
-  // Punkte in Skizzenraum konvertieren
-  const sTRStart = sketch.modelToSketchSpace(pTRStart);
-  const sTRMid = sketch.modelToSketchSpace(pTRMid);
-  const sTREnd = sketch.modelToSketchSpace(pTREnd);
-
-  const sBRStart = sketch.modelToSketchSpace(pBRStart);
-  const sBRMid = sketch.modelToSketchSpace(pBRMid);
-  const sBREnd = sketch.modelToSketchSpace(pBREnd);
-
-  const sBLStart = sketch.modelToSketchSpace(pBLStart);
-  const sBLMid = sketch.modelToSketchSpace(pBLMid);
-  const sBLEnd = sketch.modelToSketchSpace(pBLEnd);
-
-  const sTLStart = sketch.modelToSketchSpace(pTLStart);
-  const sTLMid = sketch.modelToSketchSpace(pTLMid);
-  const sTLEnd = sketch.modelToSketchSpace(pTLEnd);
-
-  // 4 Kreisbögen
-  const arcs = sketch.sketchCurves.sketchArcs;
-  arcs.addByThreePoints(sTRStart, sTRMid, sTREnd);
-  arcs.addByThreePoints(sBRStart, sBRMid, sBREnd);
-  arcs.addByThreePoints(sBLStart, sBLMid, sBLEnd);
-  arcs.addByThreePoints(sTLStart, sTLMid, sTLEnd);
-
-  // 4 verbindende Geraden
-  const lines = sketch.sketchCurves.sketchLines;
-  lines.addByTwoPoints(sTLEnd, sTRStart); // Oben
-  lines.addByTwoPoints(sTREnd, sBRStart); // Rechts
-  lines.addByTwoPoints(sBREnd, sBLStart); // Unten
-  lines.addByTwoPoints(sBLEnd, sTLStart); // Links
-}
 
 /**
  * Führt einen Schnitt durch beide Gehäusehälften mit den Profilen einer Skizze aus.
