@@ -1,0 +1,12 @@
+{
+	"autodeskProduct":	"Fusion",
+	"type":	"script",
+	"author":	"Marc Kronberg",
+	"description":	{
+		"":	"Gehäuse für einen Raspberry-Pi5 im Apple-Design der 80er Jahre (Nutshell Pi)"
+	},
+	"version":	"1.0.0",
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true,
+	"iconFilename":	"ScriptIcon.svg"
+}

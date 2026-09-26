@@ -1,0 +1,151 @@
+Model Name:
+Raspberry Pi 5 Case - 2-Piece Minimalist (NVMe SSD & Active Cooler Ready | 100% Support-Free)
+[Alternative DE]: Raspberry Pi 5 Gehäuse - 2-teilig (Clean Design, SSD HAT & Active Cooler kompatibel)
+
+Category:
+Electronics > Cases & Enclosures
+
+Tags:
+raspberry pi 5, raspberry pi, pi 5, pi5 case, geekworm x1001, nvme hat, active cooler,
+support free, snap fit, retro, apple snow white, enclosure, mini pc, single board computer,
+bambu lab, p1s, x1c, a1
+
+--------------------------------------------------------------------------------
+Community Post (max 500 chars):
+--------------------------------------------------------------------------------
+EN:
+Meet the clean 2-piece Raspberry Pi 5 Case! Designed without the top LED hole for a sleek, minimalist aesthetic. Features 6 retro Snow-White ventilation slots (25° self-supporting overhangs) and dedicated interior clearance for the official Active Cooler PLUS top-mounted NVMe M.2 SSD HATs (like Geekworm X1001). 100% support-free FDM printing, snap-fit closure, recessed front micro-HDMI/USB-C ports, MicroSD access & power button pinhole. Print upside down on textured PEI for a stunning finish!
+
+DE:
+Das 2-teilige Raspberry Pi 5 Gehäuse im minimalistischen Retro-Design! Ohne störende LED-Öffnung oben für eine cleane Optik. Ausgestattet mit 6 Lüftungsschlitzen (25° stützfreier Winkel) und Innenraum für den offiziellen Active Cooler PLUS Top-NVMe M.2 SSD HATs (z. B. Geekworm X1001). 100 % stützfrei druckbar, Schnappverschluss, vertiefte Frontanschlüsse für Micro-HDMI/USB-C, MicroSD-Zugang & Power-Button-Loch. Auf PEI-Platte gedruckt entsteht ein makelloses Oberflächenfinish!
+
+--------------------------------------------------------------------------------
+Description (English)
+--------------------------------------------------------------------------------
+A sleek, rugged, and functional 2-piece enclosure for the Raspberry Pi 5, inspired by classic 80s industrial design ("Snow White" aesthetic).
+
+This version (`PI5_case_merged_for_print`) merges the upper chassis into a single monolithic top shell (`Case_Main`), omitting the top LED cutout and exterior split groove for an ultra-clean, minimalist look. It provides generous internal clearance and an engineered recess specifically shaped to accommodate both the official Raspberry Pi Active Cooler AND top-mounted NVMe PCIe M.2 SSD HATs (such as the Geekworm X1001).
+
+Engineered from the ground up in Autodesk Fusion 360 for 100% support-free FDM 3D printing and exceptional everyday durability.
+
+
+Key Features & Highlights
+
+- Clean Monolithic 2-Piece Design:
+  Consists of only two robust parts (`Case_Main` top shell and `Case_Bottom` base plate). No top LED hole, no distracting seam lines—just pure, clean aesthetics.
+
+- Active Cooler & Top NVMe SSD Compatible:
+  Designed with internal height offset and a dedicated interior pocket (`createInnerSsdPocket`) to easily house the Raspberry Pi 5 fitted with the official Active Cooler AND popular top-mounted M.2 NVMe SSD expansion boards (e.g. Geekworm X1001 with 2280 / 2242 / 2230 SSDs).
+
+- 100% Support-Free 3D Printing:
+  Zero supports required! The 6 top ventilation louvers feature built-in 25° self-supporting draft angles. When printed upside down on a textured PEI plate, the roof prints bridge-free and leaves a gorgeous textured finish on the top face.
+
+- Recessed Front Ports:
+  A 1.5 mm recessed cavity around the USB-C power port and dual Micro-HDMI ports ensures that even bulky cable heads and adapters plug in effortlessly and securely.
+
+- Precision Port Cutouts:
+  Full, unobstructed access to Gigabit Ethernet (RJ45), 2x USB 3.0, 2x USB 2.0, bottom MicroSD card slot with finger pull notch, and a Ø 1.0 mm side pinhole for the Pi 5 power button.
+
+- Tool-Free Snap-Fit + M2.5 Screw Standoffs:
+  Secure closure via a 5.0 mm deep stepped tongue-and-groove joint with 4 internal snap latches (Rastnasen). The base plate includes 4 integrated M2.5 threaded standoffs (58 x 49 mm hole pattern) to fasten the Pi board securely.
+
+- Heavy-Duty Wall Geometry:
+  Solid 3.0 mm perimeter wall thickness, reinforced to 4.0 mm on the connector wall (+X) to easily withstand repeated cable plugging and unplugging. Internal stress-relief fillets prevent layer delamination.
+
+
+Dimensions & Specifications
+
+- External Dimensions: 92.4 mm (Length, X) x 62.4 mm (Width, Y) x ~42.4 mm (Height, Z with default -4mm offset)
+- Internal PCB Cavity: 85.4 mm x 56.4 mm (fits Raspberry Pi 5 standard footprint with 0.2 mm clearance)
+- Wall Thickness: 3.0 mm (standard) / 4.0 mm (right port side)
+- Standoff Pattern: 58.0 mm x 49.0 mm (M2.5 threads, 5 mm standoff height + floor thread depth)
+- Ventilation Slots: 6 louvers, 80.0 mm x 2.5 mm each, with 25° draft overhangs
+
+
+Recommended Print Settings
+
+- Orientation:
+  * `Case_Main`: Print upside down (flat top surface directly on the build plate).
+  * `Case_Bottom`: Print flat on its bottom face (standoffs and snap hooks facing up).
+- Supports: NONE (100% support-free design)
+- Build Plate: Textured PEI Plate recommended (delivers a premium matte/textured look on the top face)
+- Layer Height: 0.16 mm or 0.20 mm
+- Wall Loops / Perimeters: 3 - 4 walls
+- Top / Bottom Shell Layers: 4 - 5
+- Infill: 15% - 25% (Gyroid, Cross Hatch, or Grid)
+- Recommended Materials: PLA Matte (Off-White, Beige, Grey, or Black), PETG, or ABS/ASA for high-temp environments
+
+
+Assembly Instructions
+
+1. Print both parts (`Case_Main` and `Case_Bottom`) support-free using the provided 3MF / STEP files.
+2. (Optional) Mount your Raspberry Pi 5 onto the 4 base standoffs using four M2.5 screws (4 mm to 6 mm length).
+3. If using an Active Cooler and/or a top NVMe HAT (like Geekworm X1001), install them onto the Pi 5.
+4. Align the ports with `Case_Bottom` and lower `Case_Main` straight over the assembly.
+5. Press down gently until all 4 internal latches click into place. Done!
+
+
+--------------------------------------------------------------------------------
+Beschreibung (Deutsch)
+--------------------------------------------------------------------------------
+Ein formschönes, extrem stabiles und durchdachtes 2-teiliges Gehäuse für den Raspberry Pi 5 im Stil klassischer 80er-Jahre-Computer (Apple "Snow White" Formensprache).
+
+Diese Ausführung (`PI5_case_merged_for_print`) vereint den oberen Gehäusekörper zu einem einzigen, durchgehenden Bauteil (`Case_Main`). Auf die LED-Öffnung auf der Oberseite sowie die umlaufende Fuge wurde bewusst verzichtet, um eine cleane, minimalistische und geschlossene Oberfläche zu erzielen. Zudem bietet das Gehäuse durch eine eigens eingerechnete Innentasche ausreichend Platz für den offiziellen Raspberry Pi Active Cooler UND aufgesetzte PCIe M.2 NVMe SSD HATs (wie das beliebte Geekworm X1001 Board).
+
+Konstruiert in Autodesk Fusion 360 – optimiert für 100 % stützfreien FDM-3D-Druck und maximale Alltagstauglichkeit.
+
+
+Besondere Eigenschaften & Highlights
+
+- Minimalistisches 2-teiliges Design:
+  Besteht aus nur 2 Teilen (`Case_Main` Oberschale und `Case_Bottom` Bodenplatte). Ohne störende LED-Öffnung und ohne Trennfuge oben – für ein elegantes, nahtloses Erscheinungsbild.
+
+- Kompatibel mit Active Cooler & Top-NVMe SSD HAT:
+  Dank angepasster Gehäusehöhe und einer speziell ausgeformten inneren Aussparung (`ssd_pocket`) findet der Raspberry Pi 5 mitsamt offiziellem Active Cooler UND aufgesetztem M.2 NVMe SSD HAT (z. B. Geekworm X1001 für M.2 2280 / 2242 / 2230) problemlos Platz.
+
+- 100 % stützfreier 3D-Druck (Support-Free):
+  Keinerlei Stützstrukturen erforderlich! Die 6 Deckel-Lüftungsschlitze besitzen 25°-Schrägen, die kopfüber auf dem Druckbett ohne Bridging-Probleme sauber drucken. Auf einer strukturierten PEI-Platte erhält der Deckel ein edles Finish.
+
+- Vertiefte Front-Anschlüsse (Front Recess):
+  Eine 1,5 mm tiefe Ausklinkung um den USB-C Stromanschluss und die beiden Micro-HDMI-Buchsen garantiert, dass auch Stecker mit breiterem Gehäuse oder Adapter wackelfrei und tief eingesteckt werden können.
+
+- Passgenaue Port-Ausschnitte:
+  Exakter Zugang für Gigabit Ethernet (RJ45), 2x USB 3.0, 2x USB 2.0, MicroSD-Kartenschacht an der Unterseite mit praktischer Fingermulde sowie ein Ø 1,0 mm Pinhole an der Seite zum Betätigen des internen Power-Buttons.
+
+- Werkzeugloser Schnappverschluss & M2.5-Schraubdome:
+  Fester Sitz durch 5,0 mm tiefen Stufenfalz und 4 innere Rastnasen (Snap-Fit). Der Boden verfügt über 4 integrierte M2.5-Befestigungssäulen (Lochabstand 58 x 49 mm).
+
+- Solide Wandstärken & FDM-Optimierung:
+  Durchgehend 3,0 mm Wandstärke, an der Port-Wand (+X) auf 4,0 mm verstärkt, um Hebelkräfte beim Einstecken von Netzwerkkabeln aufzufangen. Innenliegende Radien reduzieren Kerbspannungen dauerhaft.
+
+
+Abmessungen & Spezifikationen
+
+- Außenmaße: 92,4 mm (Länge, X) x 62,4 mm (Breite, Y) x ca. 42,4 mm (Höhe, Z bei Standard-Offset -4mm)
+- Innenraum: 85,4 mm x 56,4 mm (exakt abgestimmt auf die Pi 5 Platine mit 0,2 mm Spiel)
+- Wandstärke: 3,0 mm / 4,0 mm (rechte Port-Wand)
+- Lochabstand Standoffs: 58,0 mm x 49,0 mm (M2.5 Kernloch/Gewinde, 5 mm Standhöhe)
+- Lüftungsschlitze: 6 Lamellen à 80,0 mm x 2,5 mm mit 25°-Dachkontur
+
+
+Druckempfehlungen
+
+- Ausrichtung auf dem Druckbett:
+  * `Case_Main`: Kopfüber (Deckel flach auf dem Druckbett)
+  * `Case_Bottom`: Flach auf der Unterseite (Befestigungssäulen zeigen nach oben)
+- Stützstrukturen (Supports): Keine (100 % stützfrei)
+- Druckplatte: Strukturierte PEI-Platte empfohlen (für ein seidenmattes, strukturiertes Deckelfinish)
+- Schichthöhe: 0,16 mm bis 0,20 mm
+- Wandlinien: 3 - 4 Wandlinien
+- Decken- / Bodenschichten: 4 - 5
+- Infill: 15 % - 25 % (Gyroid oder Cross Hatch)
+- Empfohlenes Material: PLA Matte (Retro-Weiß, Beige oder Schwarz), PETG oder ABS/ASA
+
+
+Montageanleitung
+
+1. Drucke `Case_Main` und `Case_Bottom` stützfrei mit den beiliegenden 3MF- oder STEP-Dateien.
+2. (Optional) Verschraube das Raspberry Pi 5 Board mit vier M2.5-Schrauben (Länge 4–6 mm) auf den 4 Bodensäulen.
+3. Montiere bei Bedarf den Active Cooler und den NVMe SSD HAT (z. B. Geekworm X1001) auf dem Pi.
+4. Setze `Case_Main` von oben über die Anschlüsse auf `Case_Bottom` auf.
+5. Drücke das Gehäuse sanft zusammen, bis die 4 internen Rastnasen spürbar einrasten. Fertig!

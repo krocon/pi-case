@@ -1,1 +1,1 @@
-# pi-case
+# einige selbstkonstruierte 3d-Objekte

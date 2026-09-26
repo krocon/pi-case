@@ -1,0 +1,15 @@
+{
+	"version":	1,
+	"blockAllFileIoRead":	false,
+	"blockAllFileIoWrite":	false,
+	"allowedPathPrefixesRead":	[],
+	"allowedPathPrefixesWrite":	["/Users/marckronberg/WebstormProjects/MarcIntosh_I/fusion/model/pi5/case/RASPBERRY_PI_5_1.STEP"],
+	"blockedPathPrefixesRead":	[],
+	"blockedPathPrefixesWrite":	[],
+	"blockAllTextCommands":	false,
+	"allowedTextCommandPrefixes":	[],
+	"blockedTextCommandPrefixes":	[],
+	"blockAllHttpRequests":	false,
+	"allowedHttpDomainPrefixes":	[],
+	"blockedHttpDomainPrefixes":	[]
+}
